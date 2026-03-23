@@ -1,0 +1,23 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "composite": true,
+        "moduleResolution": "bundler",
+        "outDir": "out/renderer",
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "jsx": "react-jsx"
+    },
+    "include": [
+        "src/core/**/*",
+        "src/ui/**/*",
+        "src/systems/audio/**/*",
+        "src/systems/av/**/*",
+        "src/reference/**/*",
+        "src/assets/**/*",
+        "shared/**/*"
+    ]
+}

@@ -1,0 +1,74 @@
+/**
+ * DashboardTab — 3-column cockpit layout (Sprint 10b) or Campaign Home (Sprint 16c).
+ *
+ * When a scene is active:
+ *   [GBPreviewColumn] [CenterColumn] [QuickAccessColumn]
+ *   [Scene Timeline — Sprint 10d]
+ *   [Notes Strip — Sprint 10e]
+ *
+ * When no scene is active (activeScene === null):
+ *   [CampaignHomePanel — global factions, lore, NPCs, items, scene roster]
+ *   [Scene Timeline — Sprint 10d]
+ *
+ * OutputSection, Scene Library, and BranchPanel have been moved to their
+ * respective dedicated tabs (AV tab and Scenes tab).
+ */
+import React from 'react'
+import { useSceneStore } from '@ui/stores/scene-store'
+import { useAppStore } from '@ui/stores/app-store'
+import { useScenes } from '@ui/hooks/use-scenes'
+import { GBPreviewColumn } from './dashboard/gb-preview-column'
+import { CenterColumn } from './dashboard/center-column'
+import { QuickAccessColumn } from './dashboard/quick-access-column'
+import { SceneTimeline } from './dashboard/scene-timeline'
+import { NotesStrip } from './dashboard/notes-strip'
+import { CampaignHomePanel } from './dashboard/campaign-home-panel'
+import { TransportBar } from './dashboard/transport-bar'
+
+export function DashboardTab(): React.JSX.Element {
+    const activeScene = useSceneStore((s) => s.activeScene)
+    const cuedScene = useSceneStore((s) => s.cuedScene)
+    const previewScene = useSceneStore((s) => s.previewScene)
+    const setActiveScene = useSceneStore((s) => s.setActiveScene)
+    const activeCampaignId = useAppStore((s) => s.activeCampaignId)
+    const { scenes, loading, error, refetch } = useScenes(activeCampaignId)
+
+    return (
+        <div className="dashboard">
+            {/* ── Main content: Campaign Home or Scene Dashboard ──────────── */}
+            {activeScene ? (
+                <>
+                    <button
+                        className="dashboard__home-btn"
+                        onClick={() => setActiveScene(null)}
+                        aria-label="Return to Campaign Home"
+                    >
+                        Campaign Home
+                    </button>
+                    <div className="dashboard__columns">
+                        <GBPreviewColumn />
+                        <CenterColumn />
+                        <QuickAccessColumn />
+                    </div>
+                </>
+            ) : (
+                <CampaignHomePanel />
+            )}
+
+            {/* ── Transport bar — volume + CUE/TAKE above timeline ────── */}
+            <TransportBar scenes={scenes} />
+
+            {/* ── Scene Timeline — always visible ────────────────────────── */}
+            <div className="dashboard__timeline" aria-label="Scene timeline">
+                <SceneTimeline scenes={scenes} loading={loading} error={error} refetch={refetch} />
+            </div>
+
+            {/* ── Notes Strip — scene mode, preview, or when cued ─────── */}
+            {(activeScene || cuedScene || previewScene) && (
+                <div className="dashboard__notes">
+                    <NotesStrip />
+                </div>
+            )}
+        </div>
+    )
+}

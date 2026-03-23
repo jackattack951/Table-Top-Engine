@@ -1,0 +1,47 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "baseUrl": ".",
+        "paths": {
+            "@core/*": [
+                "src/core/*"
+            ],
+            "@systems/*": [
+                "src/systems/*"
+            ],
+            "@ui/*": [
+                "src/ui/*"
+            ],
+            "@shared/*": [
+                "shared/*"
+            ],
+            "@api/*": [
+                "src/api/*"
+            ],
+            "@reference/*": [
+                "src/reference/*"
+            ],
+            "@assets/*": [
+                "src/assets/*"
+            ]
+        }
+    },
+    "references": [
+        {
+            "path": "./tsconfig.electron.json"
+        },
+        {
+            "path": "./tsconfig.renderer.json"
+        }
+    ]
+}

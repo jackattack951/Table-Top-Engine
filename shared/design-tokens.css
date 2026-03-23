@@ -1,0 +1,138 @@
+/* ─── Shared Design Tokens ─────────────────────────────────────────────────── */
+/* Imported by both cockpit (src/ui/index.css) and companion (src/companion/index.css). */
+/* Component-level CSS stays in each app's own stylesheet. */
+
+:root {
+  /* Colors — Production Surface Palette */
+  --color-bg: #141416;
+  --color-surface: #1C1C1F;
+  --color-surface-2: #252528;
+  --color-surface-3: #2E2E32;
+  --color-border: #35353A;
+  --color-border-2: #45454B;
+
+  --color-text: #D4D4D8;
+  --color-text-2: #8B8B92;
+  --color-text-3: #56565C;
+
+  /* Accent — Teal (production/technical control surface) */
+  --color-accent: #2DD4BF;
+  --color-accent-dim: #14B8A6;
+  --color-accent-glow: rgba(45, 212, 191, 0.15);
+
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-danger-dim: #b91c1c;
+
+  /* Mood zones */
+  --color-calm: #60a5fa;
+  --color-tense: #f59e0b;
+  --color-dramatic: #ef4444;
+
+  /* State indicators (Program/Preview) */
+  --color-live: #ef4444; /* Red for LIVE/Active */
+  --color-cued: #4ade80; /* Green for Cued/Preview */
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Typography */
+  --font-base: 'Inter', system-ui, -apple-system, sans-serif;
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+
+  /* Radius — tighter for production tool feel */
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-full: 9999px;
+
+  /* Tap targets — Apple HIG minimum */
+  --tap-target: 44px;
+
+  /* Transitions */
+  --transition-snappy: 0.05s ease;
+  --transition-fast: 0.1s ease;
+  --transition-base: 0.15s ease;
+  --transition-slow: 0.25s ease;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.5);
+
+  /* Overlays */
+  --color-backdrop: rgba(0, 0, 0, 0.65);
+
+  /* White text (for accent-colored backgrounds) */
+  --color-text-white: #ffffff;
+
+  /* Warning opacity variants */
+  --color-warning-glow: rgba(251, 191, 36, 0.2);
+  --color-warning-subtle: rgba(251, 191, 36, 0.12);
+  --color-warning-tint: rgba(251, 191, 36, 0.15);
+  --color-warning-faint: rgba(251, 191, 36, 0.08);
+  --color-warning-active: rgba(251, 191, 36, 0.32);
+  --color-warning-avatar: rgba(251, 191, 36, 0.25);
+  --color-warning-border: rgba(251, 191, 36, 0.7);
+  --color-warning-border-soft: rgba(251, 191, 36, 0.3);
+
+  /* Accent opacity variant */
+  --color-accent-subtle: rgba(45, 212, 191, 0.06);
+
+  /* Danger opacity variants */
+  --color-danger-glow: rgba(248, 113, 113, 0.1);
+  --color-danger-subtle: rgba(248, 113, 113, 0.08);
+  --color-danger-border: rgba(248, 113, 113, 0.2);
+  --color-danger-tint: rgba(248, 113, 113, 0.15);
+
+  /* Success opacity variants */
+  --color-success-glow: rgba(74, 222, 128, 0.2);
+  --color-success-subtle: rgba(74, 222, 128, 0.06);
+  --color-success-border: rgba(74, 222, 128, 0.3);
+  --color-success-tint: rgba(74, 222, 128, 0.15);
+
+  /* Background overlays */
+  --color-bg-overlay: rgba(20, 20, 22, 0.9);
+  --color-bg-overlay-light: rgba(20, 20, 22, 0.75);
+
+  /* White alpha variants (AV Display overlays) */
+  --color-white-alpha-08: rgba(255, 255, 255, 0.08);
+  --color-white-alpha-40: rgba(255, 255, 255, 0.4);
+  --color-white-alpha-50: rgba(255, 255, 255, 0.5);
+  --color-white-alpha-85: rgba(255, 255, 255, 0.85);
+  --color-white-alpha-90: rgba(255, 255, 255, 0.9);
+
+  /* Game UI colors */
+  --color-copper: #c4875a;
+
+  /* Rarity colors */
+  --color-rarity-uncommon: #4ade80;
+  --color-rarity-uncommon-bg: rgba(74, 222, 128, 0.1);
+  --color-rarity-rare: #60a5fa;
+  --color-rarity-rare-bg: rgba(96, 165, 250, 0.1);
+  --color-rarity-very-rare: #c084fc;
+  --color-rarity-very-rare-bg: rgba(192, 132, 252, 0.1);
+  --color-rarity-quest-bg: rgba(196, 135, 90, 0.1);
+
+  /* Monospace font stack */
+  --font-mono: 'Menlo', 'Consolas', monospace;
+
+  /* Layout constraints */
+  --content-max-width: 1800px;
+  --panel-max-width: 600px;
+  --panel-min-width: 320px;
+}

@@ -1,0 +1,1114 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TTRPG Stage Manager API",
+    "version": "0.1.0",
+    "description": "REST API for the TTRPG Stage Manager Electron app. All endpoints served by the embedded Express server on localhost:3000 (configurable via AppConfig.serverPort). The Socket.io real-time layer runs on the same port — see api-spec.ts for Socket.io documentation."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local Electron server"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Server health check",
+        "description": "Returns server liveness, current app mode, and total campaign count.",
+        "responses": {
+          "200": {
+            "description": "Server is running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/campaigns": {
+      "get": {
+        "operationId": "listCampaigns",
+        "summary": "List all campaigns",
+        "description": "Returns all campaigns stored in the local SQLite database.",
+        "responses": {
+          "200": {
+            "description": "Array of Campaign objects (may be empty)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Campaign"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createCampaign",
+        "summary": "Create a campaign",
+        "description": "Create a new campaign. UUID and timestamps are generated automatically. system defaults to '5e' if omitted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCampaignBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Campaign created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Campaign"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "name is missing or empty",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/campaigns/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Campaign UUID"
+        }
+      ],
+      "get": {
+        "operationId": "getCampaign",
+        "summary": "Get a campaign",
+        "responses": {
+          "200": {
+            "description": "Campaign found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Campaign"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateCampaign",
+        "summary": "Update a campaign",
+        "description": "Update name and/or system. Only provided fields are changed.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCampaignBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Campaign updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Campaign"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteCampaign",
+        "summary": "Delete a campaign",
+        "description": "Permanently delete a campaign and all its scenes and NPCs.",
+        "responses": {
+          "204": {
+            "description": "Campaign deleted"
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/campaigns/{id}/scenes": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Campaign UUID"
+        }
+      ],
+      "get": {
+        "operationId": "listScenes",
+        "summary": "List scenes for a campaign",
+        "responses": {
+          "200": {
+            "description": "Array of Scene objects sorted by sortOrder",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Scene"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createScene",
+        "summary": "Create a scene",
+        "description": "Create a new scene in the campaign. sortOrder is appended after existing scenes.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSceneBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Scene created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Scene"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "name is missing or empty",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scenes/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Scene UUID"
+        }
+      ],
+      "get": {
+        "operationId": "getScene",
+        "summary": "Get a scene",
+        "description": "Retrieve a single scene by UUID. Used by the AV Display on SCENE_LOAD events.",
+        "responses": {
+          "200": {
+            "description": "Scene found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Scene"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Scene not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateScene",
+        "summary": "Update a scene",
+        "description": "Update any scene properties. All fields optional. Pass only what needs to change.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSceneBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Scene updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Scene"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Scene not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteScene",
+        "summary": "Delete a scene",
+        "responses": {
+          "204": {
+            "description": "Scene deleted"
+          },
+          "404": {
+            "description": "Scene not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/campaigns/{id}/npcs": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Campaign UUID"
+        }
+      ],
+      "get": {
+        "operationId": "listNPCs",
+        "summary": "List NPCs for a campaign",
+        "responses": {
+          "200": {
+            "description": "Array of NPC objects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NPC"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createNPC",
+        "summary": "Create an NPC",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNPCBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "NPC created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NPC"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "name is missing or empty",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/npcs/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "NPC UUID"
+        }
+      ],
+      "patch": {
+        "operationId": "updateNPC",
+        "summary": "Update an NPC",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNPCBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "NPC updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NPC"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NPC not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteNPC",
+        "summary": "Delete an NPC",
+        "responses": {
+          "204": {
+            "description": "NPC deleted"
+          },
+          "404": {
+            "description": "NPC not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Database not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "required": ["status", "mode", "campaignCount"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["ok"],
+            "description": "Always 'ok' when the server is reachable"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/AppMode"
+          },
+          "campaignCount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of campaigns in the database"
+          }
+        }
+      },
+      "AppMode": {
+        "type": "string",
+        "enum": ["headless", "play", "plan"],
+        "description": "Current application operating mode"
+      },
+      "Campaign": {
+        "type": "object",
+        "required": ["id", "name", "system", "createdAt", "updatedAt"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Campaign display name"
+          },
+          "system": {
+            "type": "string",
+            "description": "Rule system identifier, e.g. '5e', 'pf2e', 'coc'",
+            "default": "5e"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateCampaignBody": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Campaign name (required, non-empty)"
+          },
+          "system": {
+            "type": "string",
+            "description": "Rule system. Defaults to '5e' if omitted."
+          }
+        }
+      },
+      "UpdateCampaignBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "system": {
+            "type": "string"
+          }
+        }
+      },
+      "ColorGrade": {
+        "type": "object",
+        "required": ["brightness", "contrast", "saturation", "temperature", "tint"],
+        "properties": {
+          "brightness": {
+            "type": "number",
+            "minimum": -1.0,
+            "maximum": 1.0,
+            "description": "Screen brightness offset"
+          },
+          "contrast": {
+            "type": "number",
+            "minimum": -1.0,
+            "maximum": 1.0
+          },
+          "saturation": {
+            "type": "number",
+            "minimum": -1.0,
+            "maximum": 1.0
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": -1.0,
+            "maximum": 1.0,
+            "description": "Negative = cool/blue, positive = warm/orange"
+          },
+          "tint": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$",
+            "description": "Hex color overlay tint. '#000000' = no tint."
+          }
+        }
+      },
+      "ParticleType": {
+        "type": "string",
+        "enum": ["none", "rain", "snow", "ash", "embers", "dust", "fog"]
+      },
+      "SceneBranch": {
+        "type": "object",
+        "required": ["label", "targetSceneId"],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "targetSceneId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Scene": {
+        "type": "object",
+        "required": [
+          "id", "campaignId", "name", "sortOrder",
+          "backgroundPath", "overlays", "particles", "colorGrade",
+          "audioMood", "notes", "linkedNPCIds", "linkedLocationIds", "branches"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "campaignId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "backgroundPath": {
+            "type": ["string", "null"],
+            "description": "Absolute path or null if no background set"
+          },
+          "overlays": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of WebM loop file paths"
+          },
+          "particles": {
+            "type": "object",
+            "required": ["type", "intensity"],
+            "properties": {
+              "type": {
+                "$ref": "#/components/schemas/ParticleType"
+              },
+              "intensity": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0
+              }
+            }
+          },
+          "colorGrade": {
+            "$ref": "#/components/schemas/ColorGrade"
+          },
+          "audioMood": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Default mood slider position for this scene"
+          },
+          "notes": {
+            "type": "string",
+            "description": "DM notes. Supports [Trigger: Label] syntax."
+          },
+          "linkedNPCIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "linkedLocationIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "branches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SceneBranch"
+            }
+          }
+        }
+      },
+      "CreateSceneBody": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "UpdateSceneBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer"
+          },
+          "backgroundPath": {
+            "type": ["string", "null"]
+          },
+          "overlays": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "particles": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "$ref": "#/components/schemas/ParticleType"
+              },
+              "intensity": {
+                "type": "number"
+              }
+            }
+          },
+          "colorGrade": {
+            "$ref": "#/components/schemas/ColorGrade"
+          },
+          "audioMood": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "linkedNPCIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "linkedLocationIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "branches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SceneBranch"
+            }
+          }
+        }
+      },
+      "NPC": {
+        "type": "object",
+        "required": ["id", "campaignId", "name", "statBlock", "personality", "notes"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "campaignId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "statBlock": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "System-agnostic JSON stat block"
+          },
+          "personality": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateNPCBody": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "statBlock": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "personality": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateNPCBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "statBlock": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "personality": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "ImportResult": {
+        "type": "object",
+        "required": ["imported", "skipped", "errors"],
+        "properties": {
+          "imported": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "skipped": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+appId: com.stagemanager.ttrpg
+productName: TTRPG Stage Manager
+copyright: Copyright (c) 2024-2026
+
+directories:
+  buildResources: build
+  output: dist
+
+# Include the electron-vite output + production node_modules (externalized by electron-vite)
+# electron-builder auto-detects production dependencies from package.json
+files:
+  - "out/**/*"
+
+# Native modules must be unpacked from asar (better-sqlite3 .node binary)
+asarUnpack:
+  - "node_modules/better-sqlite3/**"
+
+# No code signing in Sprint 7 — avoid winCodeSign symlink errors on non-admin Windows
+forceCodeSigning: false
+
+# SQL migration files ship alongside the app in resources/
+extraResources:
+  - from: "src/core/db/migrations"
+    to: "migrations"
+    filter:
+      - "**/*.sql"
+
+# Windows NSIS installer
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.ico
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+  artifactName: "${productName}-Setup-${version}.${ext}"
+
+# macOS DMG (only buildable on macOS)
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  # electron-builder auto-converts from build/icon.png when .icns is absent
+  category: public.app-category.games
+
+dmg:
+  artifactName: "${productName}-${version}.${ext}"
+
+# No auto-update publishing in Sprint 7
+publish: null

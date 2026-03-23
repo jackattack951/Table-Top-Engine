@@ -1,0 +1,20 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "composite": true,
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "outDir": "out/main",
+        "lib": [
+            "ES2022"
+        ]
+    },
+    "include": [
+        "electron/**/*",
+        "src/api/**/*",
+        "src/core/**/*",
+        "src/systems/combat/**/*",
+        "src/systems/import/**/*",
+        "shared/**/*"
+    ]
+}

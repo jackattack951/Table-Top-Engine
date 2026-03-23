@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Build output
+out/
+dist/
+
+# Electron cache
+.electron/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/settings.json
+.idea/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Large audio stems (dev assets, not distributed)
+src/systems/audio/stems/
+
+# D&D campaign PDFs (copyrighted, local reference only)
+planning/Overhaul/Notes/DND Campaigns/
+
+# Claude Code workspace data
+.claude/
+
+# Claude Code skills (tool configs, not project source)
+Skills/
+
+# Dev prototypes and scratch files
+slider-prototype.html
+slider-prototype-handles.html
+json.md
+electron-fullstack-SKILL.md
+frontend-cockpit-SKILL.md
+stage-manager-dev.md
+stage-manager-reviewer.md
+Runthrough/
