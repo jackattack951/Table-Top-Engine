@@ -29,7 +29,6 @@ export function DashboardTab(): React.JSX.Element {
 
     return (
         <div className="dashboard">
-            {/* ── Main content: 3-column scene dashboard ─────────────────── */}
             <div className="dashboard__columns">
                 <GBPreviewColumn />
                 <CenterColumn />

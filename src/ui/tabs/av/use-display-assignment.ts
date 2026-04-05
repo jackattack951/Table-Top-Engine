@@ -58,5 +58,5 @@ export function useDisplayAssignment() {
         return outputs[role]?.displayId === 'windowed'
     }
 
-    return { outputs, getRoleForDisplay, handleRoleChange, handlePopOut, togglePopOut, isWindowed }
+    return { outputs, getRoleForDisplay, handleRoleChange, togglePopOut, isWindowed }
 }

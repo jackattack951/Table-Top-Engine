@@ -8,8 +8,9 @@
  * Placement: added to app.stage via addChildAt(container, 0) so it sits
  * BELOW all LayerStack layers (Pitfall #19). No LayerStack changes needed.
  *
- * Hides immediately on SCENE_LOAD / STATE_SYNC with activeSceneId.
- * Re-shows on SESSION_ENDED or STATE_SYNC with no active scene.
+ * Hides immediately on SCENE_LOAD (explicit DM TAKE action).
+ * STATE_SYNC is intentionally ignored — idle persists until TAKE.
+ * Re-shows on SESSION_ENDED.
  */
 import * as PIXI from 'pixi.js'
 import QRCode from 'qrcode'
@@ -151,6 +152,9 @@ export class IdleScreen {
     }
 
     private _startGlow(): void {
+        // Cancel any running loop before starting a new one (guards against double-call)
+        this._stopGlow()
+
         const { width, height } = OUTPUT_CONFIG
         const cx = width / 2
         const cy = height * 0.33

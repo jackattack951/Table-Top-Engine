@@ -586,12 +586,13 @@ async function boot(): Promise<void> {
         renderOverlay(combatState)
     })
 
-    // Session ended — return to idle screen by hiding media layers
+    // Session ended — hide media layers and return to idle screen
     socket.on(EVENTS.SESSION_ENDED, () => {
         layerStack.layers.background.visible = false
         layerStack.layers.gameboard.visible = false
         layerStack.layers.fog.visible = false
         setStatus('Session ended')
+        void idleScreen.show(null, null)
     })
 
     // QR overlay (Phase 6 — both roles, all AV windows)
@@ -611,11 +612,6 @@ async function boot(): Promise<void> {
         if (show && (sessionCode || companionUrl)) {
             void idleScreen.show(sessionCode ?? null, companionUrl ?? null)
         }
-    })
-
-    // SESSION_ENDED — no active scene, re-show idle screen
-    socket.on(EVENTS.SESSION_ENDED, () => {
-        void idleScreen.show(null, null)
     })
 
     // ── Real-time preview capture (Sprint 7b) ───────────────────────────────

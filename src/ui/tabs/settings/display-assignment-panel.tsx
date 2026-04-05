@@ -7,7 +7,6 @@ import React, { useEffect, useState } from 'react'
 import { useOutputStore } from '../../stores/output-store'
 import { fetchDisplays } from '../../lib/sync'
 import { useDisplayAssignment } from '../av/use-display-assignment'
-import type { DisplayInfo } from '../../stores/output-store'
 
 export function DisplayAssignmentPanel(): React.JSX.Element {
     const { availableDisplays, setDisplays } = useOutputStore()
@@ -26,7 +25,7 @@ export function DisplayAssignmentPanel(): React.JSX.Element {
         return () => { cancelled = true }
     }, [setDisplays])
 
-    const externalDisplays = availableDisplays.filter((d: DisplayInfo) => !d.internal)
+    const externalDisplays = availableDisplays.filter((d) => !d.internal)
     const bgWindowed = isWindowed('BG')
     const gbWindowed = isWindowed('GB')
 
@@ -43,7 +42,7 @@ export function DisplayAssignmentPanel(): React.JSX.Element {
                 </div>
             )}
 
-            {!loading && externalDisplays.map((display: DisplayInfo) => (
+            {!loading && externalDisplays.map((display) => (
                 <div key={display.id} className="display-panel__row">
                     <div className="display-panel__info">
                         <span className="display-panel__name">{display.label}</span>
