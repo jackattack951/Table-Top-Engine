@@ -5,7 +5,7 @@ import { createServer as createHttpServer } from 'http'
 import { Server } from 'socket.io'
 import { EVENTS } from '../../shared/socket-events'
 import type { DisplayInfo } from '../../shared/output-types'
-import type { SessionState } from '../../shared/player-types'
+import type { SessionState, CharacterSelectMode } from '../../shared/player-types'
 import type { AppConfig, Note, NoteType, Item } from '../core/types'
 import { ITEM_RARITIES, ITEM_CATEGORIES, ITEM_STATUSES } from '../core/types'
 import type { DBInterface } from '../core/db/db'
@@ -934,6 +934,70 @@ export function createServer(
         res.status(204).end()
     })
 
+    // ── Player character roster routes (Sprint 21c) ────────────────────────────
+
+    // GET /api/sessions/:code/info — public; used by companion join screen to determine character select mode
+    expressApp.get('/api/sessions/:code/info', (req, res) => {
+        const code = (req.params['code'] ?? '').toUpperCase()
+        if (!sessionState || sessionState.sessionCode !== code) {
+            res.status(404).json({ error: 'Session not found' }); return
+        }
+        const characters = dbInterface && serverState.activeCampaignId
+            ? dbInterface.getPlayerCharacters(serverState.activeCampaignId)
+            : []
+        res.json({
+            sessionCode: sessionState.sessionCode,
+            phase: sessionState.phase,
+            characterSelectMode: sessionState.characterSelectMode,
+            characters,
+        })
+    })
+
+    expressApp.get('/api/campaigns/:id/characters', (req, res) => {
+        if (!dbInterface) { res.status(503).json({ error: 'DB not available' }); return }
+        const campaignId = req.params['id'] ?? ''
+        if (!dbInterface.getCampaign(campaignId)) { res.status(404).json({ error: 'Campaign not found' }); return }
+        res.json(dbInterface.getPlayerCharacters(campaignId))
+    })
+
+    expressApp.post('/api/campaigns/:id/characters', (req, res) => {
+        if (!dbInterface) { res.status(503).json({ error: 'DB not available' }); return }
+        const campaignId = req.params['id'] ?? ''
+        if (!dbInterface.getCampaign(campaignId)) { res.status(404).json({ error: 'Campaign not found' }); return }
+        const { characterName, class: charClass, level, maxHp, ac, abilities } = req.body as {
+            characterName?: unknown; class?: unknown; level?: unknown;
+            maxHp?: unknown; ac?: unknown; abilities?: unknown
+        }
+        if (typeof characterName !== 'string' || !characterName.trim()) {
+            res.status(400).json({ error: 'characterName is required' }); return
+        }
+        try {
+            const character = dbInterface.createPlayerCharacter(campaignId, {
+                characterName: characterName.trim(),
+                class: typeof charClass === 'string' ? charClass : 'Fighter',
+                level: typeof level === 'number' ? Math.max(1, Math.min(20, level)) : 1,
+                maxHp: typeof maxHp === 'number' ? Math.max(1, maxHp) : 10,
+                ac: typeof ac === 'number' ? Math.max(0, ac) : 10,
+                abilities: typeof abilities === 'object' && abilities !== null
+                    ? abilities as Record<string, number>
+                    : { STR: 10, DEX: 10, CON: 10, INT: 10, WIS: 10, CHA: 10 },
+            })
+            res.status(201).json(character)
+        } catch (err) {
+            console.error('[api] POST /api/campaigns/:id/characters error:', err)
+            res.status(500).json({ error: 'Internal server error' })
+        }
+    })
+
+    expressApp.delete('/api/campaigns/:id/characters/:characterId', (req, res) => {
+        if (!dbInterface) { res.status(503).json({ error: 'DB not available' }); return }
+        const campaignId = req.params['id'] ?? ''
+        const characterId = req.params['characterId'] ?? ''
+        if (!dbInterface.getCampaign(campaignId)) { res.status(404).json({ error: 'Campaign not found' }); return }
+        dbInterface.deletePlayerCharacter(characterId)
+        res.status(204).end()
+    })
+
     // ── SPA catch-all ──────────────────────────────────────────────────────────
     // Must be registered AFTER all /api/* routes to avoid intercepting API requests
     expressApp.get('*', (_req, res) => {
@@ -1046,6 +1110,8 @@ export function createServer(
                         sessionCode: generateSessionCode(),
                         players: {},
                         phase: 'lobby',
+                        rollPrompts: {},
+                        characterSelectMode: 'manual-only',
                     }
                     io.to('cockpit').emit(EVENTS.LOBBY_STATE, {
                         players: [],
@@ -1074,6 +1140,16 @@ export function createServer(
                 // Session persists across mode changes — only cleared by explicit SESSION_END.
                 // Players stay connected when DM switches to plan mode and back.
             }
+        })
+
+        // ── Character select mode (Sprint 21c) ────────────────────────────────
+        socket.on(EVENTS.SESSION_SET_CHAR_MODE, (payload) => {
+            if (!sessionState) return
+            const { mode } = payload as { mode: string }
+            const valid: CharacterSelectMode[] = ['manual-only', 'roster-and-manual', 'roster-only']
+            if (!valid.includes(mode as CharacterSelectMode)) return
+            sessionState.characterSelectMode = mode as CharacterSelectMode
+            io.to('cockpit').emit(EVENTS.SESSION_CHAR_MODE, { mode: sessionState.characterSelectMode })
         })
 
         // ── Output management — proxy to Electron main process ────────────────

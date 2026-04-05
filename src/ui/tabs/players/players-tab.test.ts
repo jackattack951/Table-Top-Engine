@@ -31,8 +31,10 @@ function makePlayer(overrides: Partial<PlayerCharacter> = {}): PlayerCharacter {
         inventory: [],
         currency: { gold: 0, silver: 0, copper: 0 },
         whispers: [],
+        messages: [],
         status: 'live',
         connected: true,
+        handRaised: false,
         ...overrides,
     }
 }

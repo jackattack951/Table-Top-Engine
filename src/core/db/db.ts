@@ -906,6 +906,56 @@ export function getSceneItemLinks(campaignId: string): Array<{ sceneId: string; 
     return rows.map(row => ({ sceneId: row.scene_id, itemId: row.item_id }))
 }
 
+// ── Player Characters (Sprint 21c) ────────────────────────────────────────────
+
+interface PlayerCharacterRow {
+    id: string
+    campaign_id: string
+    character_name: string
+    class: string
+    level: number
+    max_hp: number
+    ac: number
+    abilities: string
+}
+
+function rowToRosterCharacter(row: PlayerCharacterRow) {
+    return {
+        id: row.id,
+        characterName: row.character_name,
+        class: row.class,
+        level: row.level,
+        maxHp: row.max_hp,
+        ac: row.ac,
+        abilities: JSON.parse(row.abilities) as Record<string, number>,
+    }
+}
+
+export function getPlayerCharacters(campaignId: string) {
+    const rows = getDB()
+        .prepare('SELECT * FROM player_characters WHERE campaign_id = ? ORDER BY created_at ASC')
+        .all(campaignId) as PlayerCharacterRow[]
+    return rows.map(rowToRosterCharacter)
+}
+
+export function createPlayerCharacter(
+    campaignId: string,
+    data: { characterName: string; class: string; level: number; maxHp: number; ac: number; abilities: Record<string, number> },
+) {
+    const id = randomUUID()
+    getDB()
+        .prepare(`
+            INSERT INTO player_characters (id, campaign_id, character_name, class, level, max_hp, ac, abilities)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `)
+        .run(id, campaignId, data.characterName, data.class, data.level, data.maxHp, data.ac, JSON.stringify(data.abilities))
+    return { id, characterName: data.characterName, class: data.class, level: data.level, maxHp: data.maxHp, ac: data.ac, abilities: data.abilities }
+}
+
+export function deletePlayerCharacter(id: string): void {
+    getDB().prepare('DELETE FROM player_characters WHERE id = ?').run(id)
+}
+
 /**
  * Convenience typed interface bundled for dependency injection into createServer().
  */
@@ -961,6 +1011,10 @@ export interface DBInterface {
     tagAssetForCampaign: typeof tagAssetForCampaign
     untagAsset: typeof untagAsset
     getAssetsForCampaign: typeof getAssetsForCampaign
+    // Player characters (Sprint 21c)
+    getPlayerCharacters: typeof getPlayerCharacters
+    createPlayerCharacter: typeof createPlayerCharacter
+    deletePlayerCharacter: typeof deletePlayerCharacter
 }
 
 export function createDBInterface(): DBInterface {
@@ -1016,5 +1070,8 @@ export function createDBInterface(): DBInterface {
         tagAssetForCampaign,
         untagAsset,
         getAssetsForCampaign,
+        getPlayerCharacters,
+        createPlayerCharacter,
+        deletePlayerCharacter,
     }
 }

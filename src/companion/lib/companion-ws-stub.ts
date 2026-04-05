@@ -62,8 +62,10 @@ class CompanionWsStub {
                         inventory: [],
                         currency: { gold: 50, silver: 25, copper: 10 },
                         whispers: [],
+                        messages: [],
                         status: 'approved',
                         connected: true,
+                        handRaised: false,
                     }), 200)
                 }
                 break
@@ -87,8 +89,10 @@ class CompanionWsStub {
                     inventory: [],
                     currency: { gold: 0, silver: 0, copper: 0 },
                     whispers: [],
+                    messages: [],
                     status: 'pending' as const,
                     connected: true,
+                    handRaised: false,
                 }
                 // Simulate token assignment
                 setTimeout(() => this.trigger('player:token', { token: stubToken }), 300)

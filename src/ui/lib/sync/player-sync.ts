@@ -2,6 +2,7 @@
  * Player lobby and DM action socket emitters.
  */
 import { EVENTS } from '@shared/socket-events'
+import type { CharacterSelectMode } from '@shared/player-types'
 import { getSocket, safeEmit } from './connection'
 
 // ── Player Lobby helpers (Sprint 11d) ─────────────────────────────────────────
@@ -76,4 +77,30 @@ export function emitBroadcast(type: string, content: string): void {
 /** Show or hide QR overlay on all AV Display outputs. */
 export function emitQROverlay(show: boolean, qrDataUrl?: string, sessionCode?: string): void {
     safeEmit(EVENTS.SESSION_QR_OVERLAY, { show, qrDataUrl, sessionCode })
+}
+
+// ── Sprint 21a: DM reply + hand acknowledgment ────────────────────────────────
+
+/** DM replies directly to a specific player's message thread. */
+export function emitReplyToPlayer(token: string, message: string): void {
+    getSocket()?.emit(EVENTS.DM_REPLY_TO_PLAYER, { token, message })
+}
+
+// ── Sprint 21b: Roll prompt emitters ──────────────────────────────────────────
+
+/** Send a roll prompt to one or more players. */
+export function emitRollPrompt(tokens: string[], die: string, label: string, countdown: number): void {
+    getSocket()?.emit(EVENTS.ROLL_PROMPT_SEND, { tokens, die, label, countdown })
+}
+
+/** Cancel an active roll prompt by ID. */
+export function emitCancelRollPrompt(promptId: string): void {
+    getSocket()?.emit(EVENTS.ROLL_PROMPT_CANCEL, { promptId })
+}
+
+// ── Sprint 21c: Character select mode ─────────────────────────────────────────
+
+/** Set the character select mode for the current session. */
+export function emitSetCharMode(mode: CharacterSelectMode): void {
+    getSocket()?.emit(EVENTS.SESSION_SET_CHAR_MODE, { mode })
 }

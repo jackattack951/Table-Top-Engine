@@ -33,4 +33,7 @@ export {
     emitAdjustHP, emitAddCondition, emitRemoveCondition,
     emitSendItem, emitRemoveItem, emitUpdateCurrency,
     emitWhisper, emitBroadcast, emitQROverlay,
+    emitReplyToPlayer,
+    emitRollPrompt, emitCancelRollPrompt,
+    emitSetCharMode,
 } from './player-sync'

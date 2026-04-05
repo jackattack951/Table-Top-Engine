@@ -8,7 +8,7 @@
 import { io } from 'socket.io-client'
 import type { Socket } from 'socket.io-client'
 import { EVENTS } from '@shared/socket-events'
-import type { PlayerCharacter } from '@shared/player-types'
+import type { PlayerCharacter, PlayerMessage, RollPrompt } from '@shared/player-types'
 import { useCompanionStore } from '../stores/companion-store'
 import { companionWsStub } from './companion-ws-stub'
 
@@ -221,6 +221,24 @@ export function initCompanionSync(sessionCode: string): void {
         const whisper = data as PlayerCharacter['whispers'][number]
         const current = useCompanionStore.getState().whispers
         store.setPlayerData({ whispers: [...current, whisper] })
+    })
+
+    socket!.on(EVENTS.PLAYER_DM_REPLY, (data: unknown) => {
+        const msg = data as PlayerMessage
+        store.addMessage(msg)
+    })
+
+    socket!.on(EVENTS.PLAYER_ROLL_PROMPT, (data: unknown) => {
+        const prompt = data as RollPrompt
+        store.setRollPrompt(prompt)
+    })
+
+    socket!.on(EVENTS.PLAYER_ROLL_PROMPT_CANCEL, (data: unknown) => {
+        const { promptId } = data as { promptId: string }
+        const current = useCompanionStore.getState().activeRollPrompt
+        if (current?.id === promptId) {
+            store.setRollPrompt(null)
+        }
     })
 }
 

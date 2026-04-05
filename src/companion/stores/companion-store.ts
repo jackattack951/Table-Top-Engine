@@ -5,7 +5,7 @@
  */
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import type { PlayerCharacter, PlayerItem, PlayerWhisper, AbilityScore } from '@shared/player-types'
+import type { PlayerCharacter, PlayerItem, PlayerWhisper, PlayerMessage, RollPrompt, AbilityScore } from '@shared/player-types'
 
 export type CompanionPhase = 'join' | 'lobby' | 'dashboard' | 'ended' | 'expired'
 
@@ -29,6 +29,8 @@ interface CompanionStoreState {
     inventory: PlayerItem[]
     currency: { gold: number; silver: number; copper: number }
     whispers: PlayerWhisper[]
+    messages: PlayerMessage[]
+    handRaised: boolean
 
     // Connection
     token: string | null
@@ -36,6 +38,9 @@ interface CompanionStoreState {
     connected: boolean
     phase: CompanionPhase
     status: PlayerCharacter['status'] | null
+
+    // Active roll prompt (null when none pending)
+    activeRollPrompt: RollPrompt | null
 
     // UI state
     loading: boolean
@@ -49,6 +54,9 @@ interface CompanionStoreState {
     setError: (error: string | null) => void
     setConnected: (connected: boolean) => void
     setLoading: (loading: boolean) => void
+    addMessage: (msg: PlayerMessage) => void
+    setHandRaised: (raised: boolean) => void
+    setRollPrompt: (prompt: RollPrompt | null) => void
     reset: () => void
 }
 
@@ -65,6 +73,9 @@ const INITIAL_STATE = {
     inventory: [],
     currency: { gold: 0, silver: 0, copper: 0 },
     whispers: [],
+    messages: [],
+    handRaised: false,
+    activeRollPrompt: null,
     token: null,
     sessionCode: null,
     connected: false,
@@ -91,6 +102,8 @@ export const useCompanionStore = create<CompanionStoreState>()(
             ...(data.inventory !== undefined && { inventory: data.inventory }),
             ...(data.currency !== undefined && { currency: data.currency }),
             ...(data.whispers !== undefined && { whispers: data.whispers }),
+            ...(data.messages !== undefined && { messages: data.messages }),
+            ...(data.handRaised !== undefined && { handRaised: data.handRaised }),
             ...(data.status !== undefined && { status: data.status }),
             ...(data.connected !== undefined && { connected: data.connected }),
         })),
@@ -101,6 +114,9 @@ export const useCompanionStore = create<CompanionStoreState>()(
         setError: (error) => set({ error }),
         setConnected: (connected) => set({ connected }),
         setLoading: (loading) => set({ loading }),
+        addMessage: (msg) => set((state) => ({ messages: [...state.messages, msg] })),
+        setHandRaised: (raised) => set({ handRaised: raised }),
+        setRollPrompt: (prompt) => set({ activeRollPrompt: prompt }),
 
         reset: () => set({ ...INITIAL_STATE }),
     }))

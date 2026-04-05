@@ -1245,3 +1245,280 @@ body {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ─── Sprint 21a: Message Thread (companion) ───────────────────────────────── */
+.message-thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.message-thread__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.message-thread__raise-hand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.message-thread__raise-hand--active {
+  background: var(--color-warning);
+  border-color: var(--color-warning);
+  color: #000;
+}
+
+.message-thread__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-height: 240px;
+  overflow-y: auto;
+  padding: var(--space-2);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.message-thread__empty {
+  font-size: var(--text-sm);
+  color: var(--color-text-3);
+  text-align: center;
+  padding: var(--space-3) 0;
+}
+
+.message-thread__bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  max-width: 85%;
+  animation: messageAppear 0.15s ease;
+}
+
+.message-thread__bubble--player {
+  align-self: flex-end;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.message-thread__bubble--dm {
+  align-self: flex-start;
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+
+.message-thread__bubble-label {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.message-thread__bubble-text {
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+.message-thread__bubble-time {
+  font-size: 10px;
+  opacity: 0.6;
+  align-self: flex-end;
+}
+
+.message-thread__input-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.message-thread__input {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-thread__send {
+  flex-shrink: 0;
+}
+
+@keyframes messageAppear {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Sprint 21b: Roll Prompt Overlay ───────────────────────────────────────── */
+
+.roll-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: rollOverlayIn 0.2s ease;
+}
+
+@keyframes rollOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.roll-prompt-overlay__card {
+  background: var(--color-surface-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 260px;
+  max-width: 340px;
+  width: 90vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: rollCardIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes rollCardIn {
+  from { transform: scale(0.88) translateY(16px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.roll-prompt-overlay__label {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+}
+
+.roll-prompt-overlay__die {
+  font-size: 56px;
+  font-weight: 800;
+  color: var(--color-accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.roll-prompt-overlay__timer {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-text-2);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--transition-fast);
+}
+
+.roll-prompt-overlay__timer--urgent {
+  color: var(--color-danger);
+  animation: timerPulse 0.5s ease infinite alternate;
+}
+
+@keyframes timerPulse {
+  from { opacity: 1; }
+  to { opacity: 0.6; }
+}
+
+.roll-prompt-overlay__roll-btn {
+  font-size: var(--text-lg);
+  padding: var(--space-3) var(--space-8);
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+
+.roll-prompt-overlay__result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.roll-prompt-overlay__result-value {
+  font-size: 72px;
+  font-weight: 800;
+  color: var(--color-success);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  animation: resultPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes resultPop {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.roll-prompt-overlay__result-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-3);
+}
+
+/* ─── Join Screen — Roster Picker (Sprint 21c) ───────────────────────────────── */
+
+.join-screen__roster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.join-screen__roster-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  color: var(--color-text);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.join-screen__roster-card:hover {
+  border-color: var(--color-accent);
+  background: var(--color-surface-3);
+}
+
+.join-screen__roster-card--selected {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+
+.join-screen__roster-card--manual {
+  border-style: dashed;
+}
+
+.join-screen__roster-name {
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.join-screen__roster-meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-3);
+}
+
+.join-screen__readonly {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+  pointer-events: none;
+  user-select: none;
+}
+

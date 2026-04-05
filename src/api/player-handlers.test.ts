@@ -53,6 +53,8 @@ function makeSessionState(overrides: Partial<SessionState> = {}): SessionState {
         sessionCode: 'ABC123',
         players: {},
         phase: 'lobby',
+        rollPrompts: {},
+        characterSelectMode: 'manual-only' as const,
         ...overrides,
     }
 }
@@ -166,8 +168,10 @@ describe('registerPlayerHandlers — PLAYER_JOIN', () => {
                 inventory: [],
                 currency: { gold: 0, silver: 0, copper: 0 },
                 whispers: [],
+                messages: [],
                 status: 'pending',
                 connected: true,
+                handRaised: false,
             }
         }
 

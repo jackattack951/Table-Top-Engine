@@ -24,8 +24,10 @@ function makePlayer(overrides: Partial<PlayerCharacter> = {}): PlayerCharacter {
         inventory: [],
         currency: { gold: 50, silver: 25, copper: 10 },
         whispers: [],
+        messages: [],
         status: 'pending',
         connected: true,
+        handRaised: false,
         ...overrides,
     }
 }
@@ -87,6 +89,44 @@ describe('PlayerStore — setPlayers', () => {
     })
 })
 
+describe('PlayerStore — patchPlayer (Sprint 21a)', () => {
+    beforeEach(() => {
+        usePlayerStore.getState().reset()
+    })
+
+    it('patches a single player field without affecting others', () => {
+        const player = makePlayer({ token: 'p1', playerName: 'Alice' })
+        usePlayerStore.getState().setPlayers([player])
+
+        usePlayerStore.getState().patchPlayer('p1', { handRaised: true })
+
+        const updated = usePlayerStore.getState().players['p1']
+        expect(updated.handRaised).toBe(true)
+        expect(updated.playerName).toBe('Alice') // unchanged
+    })
+
+    it('appends messages via patchPlayer', () => {
+        const player = makePlayer({ token: 'p1' })
+        usePlayerStore.getState().setPlayers([player])
+
+        const msg = { id: 'msg-1', message: 'Hello', timestamp: 1000, fromDM: false, read: false }
+        usePlayerStore.getState().patchPlayer('p1', { messages: [msg] })
+
+        expect(usePlayerStore.getState().players['p1'].messages).toHaveLength(1)
+        expect(usePlayerStore.getState().players['p1'].messages[0].message).toBe('Hello')
+    })
+
+    it('is a no-op for unknown token', () => {
+        const player = makePlayer({ token: 'p1' })
+        usePlayerStore.getState().setPlayers([player])
+
+        usePlayerStore.getState().patchPlayer('unknown', { handRaised: true })
+
+        // p1 unchanged
+        expect(usePlayerStore.getState().players['p1'].handRaised).toBe(false)
+    })
+})
+
 describe('PlayerStore — session management', () => {
     beforeEach(() => {
         usePlayerStore.getState().reset()
@@ -117,3 +157,91 @@ describe('PlayerStore — session management', () => {
         expect(usePlayerStore.getState().sessionCode).toBeNull()
     })
 })
+
+describe('PlayerStore — roll prompt tracking (Sprint 21b)', () => {
+    beforeEach(() => {
+        usePlayerStore.getState().reset()
+    })
+
+    it('starts with null activePromptId and empty rollResults', () => {
+        expect(usePlayerStore.getState().activePromptId).toBeNull()
+        expect(usePlayerStore.getState().rollResults).toEqual([])
+    })
+
+    it('setActivePromptId sets the active prompt', () => {
+        usePlayerStore.getState().setActivePromptId('prompt-abc')
+        expect(usePlayerStore.getState().activePromptId).toBe('prompt-abc')
+    })
+
+    it('setActivePromptId(null) clears results along with promptId', () => {
+        const result = {
+            promptId: 'p1', token: 'tok', playerName: 'Bob', characterName: 'Borin',
+            die: 'd20', label: 'Roll', result: 12, timestamp: Date.now(),
+        }
+        usePlayerStore.getState().setActivePromptId('p1')
+        usePlayerStore.getState().addRollResult(result)
+        expect(usePlayerStore.getState().rollResults).toHaveLength(1)
+
+        usePlayerStore.getState().setActivePromptId(null)
+        expect(usePlayerStore.getState().activePromptId).toBeNull()
+        expect(usePlayerStore.getState().rollResults).toHaveLength(0)
+    })
+
+    it('addRollResult appends result without clearing existing', () => {
+        usePlayerStore.getState().setActivePromptId('p1')
+        const base = {
+            promptId: 'p1', token: 'tok', playerName: 'Bob', characterName: 'Borin',
+            die: 'd20', label: 'Roll', timestamp: Date.now(),
+        }
+        usePlayerStore.getState().addRollResult({ ...base, result: 12 })
+        usePlayerStore.getState().addRollResult({ ...base, result: 18 })
+
+        const results = usePlayerStore.getState().rollResults
+        expect(results).toHaveLength(2)
+        expect(results[0].result).toBe(12)
+        expect(results[1].result).toBe(18)
+    })
+
+    it('reset clears rollResults and activePromptId', () => {
+        usePlayerStore.getState().setActivePromptId('p1')
+        const result = {
+            promptId: 'p1', token: 't', playerName: 'X', characterName: 'Y',
+            die: 'd20', label: 'R', result: 10, timestamp: Date.now(),
+        }
+        usePlayerStore.getState().addRollResult(result)
+
+        usePlayerStore.getState().reset()
+
+        expect(usePlayerStore.getState().activePromptId).toBeNull()
+        expect(usePlayerStore.getState().rollResults).toEqual([])
+    })
+})
+
+describe('PlayerStore — character select mode (Sprint 21c)', () => {
+    beforeEach(() => {
+        usePlayerStore.getState().reset()
+    })
+
+    it('defaults to manual-only', () => {
+        expect(usePlayerStore.getState().characterSelectMode).toBe('manual-only')
+    })
+
+    it('setCharacterSelectMode updates the mode', () => {
+        usePlayerStore.getState().setCharacterSelectMode('roster-only')
+        expect(usePlayerStore.getState().characterSelectMode).toBe('roster-only')
+    })
+
+    it('setCharacterSelectMode accepts all valid modes', () => {
+        usePlayerStore.getState().setCharacterSelectMode('roster-and-manual')
+        expect(usePlayerStore.getState().characterSelectMode).toBe('roster-and-manual')
+        usePlayerStore.getState().setCharacterSelectMode('manual-only')
+        expect(usePlayerStore.getState().characterSelectMode).toBe('manual-only')
+    })
+
+    it('reset restores manual-only mode', () => {
+        usePlayerStore.getState().setCharacterSelectMode('roster-only')
+        usePlayerStore.getState().reset()
+        expect(usePlayerStore.getState().characterSelectMode).toBe('manual-only')
+    })
+})
+
