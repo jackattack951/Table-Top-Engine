@@ -66,12 +66,12 @@
 | 21a | Player → DM Messaging + Bidirectional Whisper | COMPLETE | 867 |
 | 21b | DM Roll Prompt System | COMPLETE | 867 |
 | 21c | Character Select from Campaign DB | COMPLETE | 879 |
-| 22a | Scene Summary + Save Indicator + Plan/Play Mode | PLANNED | — |
+| 22a | Scene Summary + Save Indicator + Plan/Play Mode | COMPLETE | 879 |
 | 22b | Named Saves + Undo on Load | PLANNED | — |
 | 22c | AV Output Idle Screen | PLANNED | — |
-| 23a | Settings Page + Audio Device Selection | PLANNED | — |
-| 23b | Display Assignment + Volume Persistence | PLANNED | — |
-| 23c | Theme Toggle + Export/Import Prefs | PLANNED | — |
+| 23a | Settings Page + Audio Device Selection | COMPLETE | 941 |
+| 23b | Display Assignment + Volume Persistence | COMPLETE | 941 |
+| 23c | Theme Toggle + Export/Import Prefs | COMPLETE | 941 |
 
 ---
 
@@ -810,14 +810,28 @@ SCENE_SNAPSHOT_RESTORED: 'scene:snapshotRestored'  // Server → Cockpit: { scen
 
 ---
 
-## Sprint 23 — Global Settings Page (PLANNED)
+## Sprint 23 — Global Settings Page (COMPLETE — 941 tests, 55 test files)
 
-**Why:** Configuration is scattered — display assignment lives in the AV toolbar, volume defaults aren't persisted, audio output device can't be changed, and there's no way to adjust theme or density. A dedicated Settings tab consolidates all of this, reduces cognitive load during sessions, and unlocks accessibility improvements (audio device routing for players with hearing setups, density for small tablets).
+**Completed:** 2026-04-05
+
+**What was built:**
+- New `SettingsTab` with 6 sections: Audio, Volumes, Display, Companion, Appearance, Data
+- `settings-store.ts` — Zustand store with `zustand/persist` middleware (localStorage, key `stage-manager-settings`) — first persisted store in the codebase
+- `AudioDeviceManager` singleton — `HTMLVideoElement.setSinkId()` routing, enumerate/register/unregister API
+- `DisplayAssignmentPanel` — full display assignment extracted from AV toolbar to Settings
+- `useDisplayAssignment` hook — shared display role assignment logic (used by AVToolbar + DisplayAssignmentPanel)
+- Volume defaults persisted and applied once on session start (not on reconnects)
+- Companion lobby config in Settings (characterSelectMode, maxPlayers, autoApprove, requireReadyCheck, sessionCodeLength)
+- Light theme (warm parchment palette) + compact density CSS in `shared/design-tokens.css`
+- `AppearanceToggle` generic component — shared by ThemeToggle and DensityToggle
+- `appearance.ts` helpers — FOCT-safe theme/density apply before React hydrates
+- Settings export/import as JSON (download + file input, with type-safe `validateSettingsExport`)
+- `downloadFile()` utility — shared Blob download helper used by settings export + scene summary
 
 **Scope (3 phases):**
-- [ ] **Phase 23a — Settings Page + Audio Device Selection:** New `SettingsTab`, `settings-store` (localStorage-backed, `zustand persist`), audio output device enumeration and `HTMLVideoElement.setSinkId()` routing for video elements.
-- [ ] **Phase 23b — Display Assignment + Volume Persistence:** Extract `DisplayAssignmentPanel` to Settings; persist volume defaults; companion lobby config settings.
-- [ ] **Phase 23c — Theme Toggle + Export/Import Prefs:** Light/dark theme toggle, density toggle, export settings to JSON, import from JSON.
+- [x] **Phase 23a — Settings Page + Audio Device Selection:** New `SettingsTab`, `settings-store` (localStorage-backed, `zustand persist`), audio output device enumeration and `HTMLVideoElement.setSinkId()` routing for video elements.
+- [x] **Phase 23b — Display Assignment + Volume Persistence:** Extract `DisplayAssignmentPanel` to Settings; persist volume defaults; companion lobby config settings.
+- [x] **Phase 23c — Theme Toggle + Export/Import Prefs:** Light/dark theme toggle, density toggle, export settings to JSON, import from JSON.
 
 ---
 
