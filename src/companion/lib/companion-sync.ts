@@ -75,6 +75,12 @@ function clearCredentials(): void {
  * Call once on app boot or when reconnecting.
  */
 export function initCompanionSync(sessionCode: string): void {
+    // Disconnect any existing socket to prevent zombie connections on re-init
+    if (socket && 'disconnect' in socket) {
+        (socket as Socket).disconnect()
+    }
+    socket = null
+
     const store = useCompanionStore.getState()
     store.setSessionCode(sessionCode)
 

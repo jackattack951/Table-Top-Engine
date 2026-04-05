@@ -20,9 +20,8 @@ export function RollPromptPanel(): React.JSX.Element {
     const [countdown, setCountdown] = useState(30)
     const [selectedTokens, setSelectedTokens] = useState<Set<string>>(new Set())
 
-    const liveTokens = Object.values(players)
-        .filter((p) => p.status === 'live' && p.connected)
-        .map((p) => p.token)
+    const livePlayers = Object.values(players).filter((p) => p.status === 'live' && p.connected)
+    const liveTokens = livePlayers.map((p) => p.token)
 
     const toggleToken = (token: string) => {
         setSelectedTokens((prev) => {
@@ -114,9 +113,7 @@ export function RollPromptPanel(): React.JSX.Element {
                         <button className="btn btn-ghost" onClick={clearAll}>Clear</button>
                     </div>
                     <div className="roll-prompt-panel__player-list">
-                        {Object.values(players)
-                            .filter((p) => p.status === 'live' && p.connected)
-                            .map((p) => (
+                        {livePlayers.map((p) => (
                                 <label key={p.token} className="roll-prompt-panel__player-item">
                                     <input
                                         type="checkbox"

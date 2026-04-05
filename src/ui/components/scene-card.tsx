@@ -76,7 +76,6 @@ export function SceneCard({
     const [showSaved, setShowSaved] = useState(false)
     const { summary, loading: summaryLoading } = useSceneSummary(expanded ? scene.id : null)
 
-    // Flash "Saved" badge on active scene when lastSavedAt changes
     useEffect(() => {
         if (!isActive || lastSavedAt === null) return
         setShowSaved(true)

@@ -2,8 +2,6 @@
  * PlayerCard — cockpit-side per-player card for DM management.
  * Shows character info, HP bar, conditions, and DM action controls.
  * All actions are server-authoritative via sync.ts emit helpers.
- *
- * Sprint 14: DM Controls.
  */
 import React, { useState, useMemo, useRef, useCallback } from 'react'
 import type { PlayerCharacter, PlayerMessage } from '@shared/player-types'

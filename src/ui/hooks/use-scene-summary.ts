@@ -3,7 +3,7 @@
  * Lazy-fetches aggregated scene data from GET /api/scenes/:id/summary.
  * Caches by sceneId — only re-fetches when the sceneId changes.
  */
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { getServerUrl } from '../lib/sync'
 import type { Scene, NPC, Note, SceneItem } from '@core/types'
 import type { MediaAsset } from '@shared/asset-types'
@@ -25,19 +25,14 @@ export function useSceneSummary(sceneId: string | null): {
     const [summary, setSummary] = useState<SceneSummaryResponse | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const cachedId = useRef<string | null>(null)
 
     useEffect(() => {
         if (!sceneId) {
             setSummary(null)
             setError(null)
-            cachedId.current = null
             return
         }
-        // Skip re-fetch if sceneId unchanged
-        if (sceneId === cachedId.current) return
 
-        cachedId.current = sceneId
         setLoading(true)
         setError(null)
 

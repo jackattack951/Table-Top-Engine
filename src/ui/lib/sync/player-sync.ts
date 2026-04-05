@@ -4,6 +4,7 @@
 import { EVENTS } from '@shared/socket-events'
 import type { CharacterSelectMode } from '@shared/player-types'
 import { getSocket, safeEmit } from './connection'
+import { usePlayerStore } from '../../stores/player-store'
 
 // ── Player Lobby helpers (Sprint 11d) ─────────────────────────────────────────
 
@@ -93,9 +94,10 @@ export function emitRollPrompt(tokens: string[], die: string, label: string, cou
     getSocket()?.emit(EVENTS.ROLL_PROMPT_SEND, { tokens, die, label, countdown })
 }
 
-/** Cancel an active roll prompt by ID. */
+/** Cancel an active roll prompt by ID. Also clears the cockpit's activePromptId immediately. */
 export function emitCancelRollPrompt(promptId: string): void {
     getSocket()?.emit(EVENTS.ROLL_PROMPT_CANCEL, { promptId })
+    usePlayerStore.getState().setActivePromptId(null)
 }
 
 // ── Sprint 21c: Character select mode ─────────────────────────────────────────

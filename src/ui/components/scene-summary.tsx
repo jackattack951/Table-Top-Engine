@@ -1,6 +1,5 @@
 /**
- * SceneSummary — Sprint 22a.
- * Read-only at-a-glance view of a scene's configuration.
+ * SceneSummary — read-only at-a-glance view of a scene's configuration.
  * Rendered at the top of an expanded SceneCard.
  * Includes Markdown export (clipboard copy + .md download).
  */
@@ -131,7 +130,7 @@ export function SceneSummary({ summary, allScenes }: SceneSummaryProps): React.J
         a.download = `${scene.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-summary.md`
         a.click()
         URL.revokeObjectURL(url)
-    }, [summary, allScenes, scene.name])
+    }, [summary, allScenes])
 
     return (
         <div className="scene-summary">

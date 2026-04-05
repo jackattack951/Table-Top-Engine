@@ -160,12 +160,6 @@ export function registerPlayerHandlers(
         if (!sessionState) return
 
         sessionState.phase = 'ready-check'
-        // Set all approved players to 'approved' (they must confirm to become 'ready')
-        for (const player of Object.values(sessionState.players)) {
-            if (player.status === 'approved') {
-                // Status stays 'approved' — player must confirm to become 'ready'
-            }
-        }
         io.to('player').emit(EVENTS.LOBBY_READY_CHECK)
         emitLobbyState(io, sessionState)
     })
