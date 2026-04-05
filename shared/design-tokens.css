@@ -136,3 +136,45 @@
   --panel-max-width: 600px;
   --panel-min-width: 320px;
 }
+
+/* ─── Light theme — warm parchment palette ──────────────────────────────── */
+[data-theme="light"] {
+  --color-bg: #f5f0e8;
+  --color-surface: #ede8de;
+  --color-surface-2: #e6e0d4;
+  --color-surface-3: #dcd5c6;
+  --color-border: #c8bfa8;
+  --color-border-2: #b5ab92;
+
+  --color-text: #1a1510;
+  --color-text-2: #6b5e4e;
+  --color-text-3: #9c8e7c;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.15);
+
+  --color-backdrop: rgba(0, 0, 0, 0.4);
+  --color-bg-overlay: rgba(245, 240, 232, 0.95);
+  --color-bg-overlay-light: rgba(245, 240, 232, 0.8);
+
+  --color-white-alpha-08: rgba(0, 0, 0, 0.06);
+  --color-white-alpha-40: rgba(0, 0, 0, 0.3);
+  --color-white-alpha-50: rgba(0, 0, 0, 0.4);
+  --color-white-alpha-85: rgba(0, 0, 0, 0.75);
+  --color-white-alpha-90: rgba(0, 0, 0, 0.85);
+
+  --color-accent-subtle: rgba(45, 212, 191, 0.12);
+}
+
+/* ─── Compact density — 25% tighter spacing ─────────────────────────────── */
+[data-density="compact"] {
+  --space-1: 3px;
+  --space-2: 6px;
+  --space-3: 9px;
+  --space-4: 12px;
+  --space-5: 15px;
+  --space-6: 18px;
+  --space-8: 24px;
+}

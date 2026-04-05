@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import './index.css'
+import { applyTheme, applyDensity, getSavedTheme, getSavedDensity } from './lib/appearance'
+
+// Apply saved theme + density before first render to prevent flash of wrong theme
+applyTheme(getSavedTheme())
+applyDensity(getSavedDensity())
 import { TabBar, type TabId } from './components/TabBar'
 import { ModeToggle } from './components/ModeToggle'
 import { ConnectionStatus } from './components/ConnectionStatus'

@@ -7,6 +7,7 @@ import React, { useCallback } from 'react'
 import { COLOR_GRADE_PRESETS, COLOR_GRADE_DEFAULT } from '../tabs/av/color-grade-presets'
 import type { Scene } from '@core/types'
 import type { SceneSummaryResponse } from '../hooks/use-scene-summary'
+import { downloadFile } from '../lib/download-file'
 
 // ── Markdown builder (pure — testable without DOM) ────────────────────────────
 
@@ -123,13 +124,10 @@ export function SceneSummary({ summary, allScenes }: SceneSummaryProps): React.J
 
     const handleDownload = useCallback(() => {
         const md = buildSceneSummaryMarkdown(summary, allScenes)
-        const blob = new Blob([md], { type: 'text/markdown' })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `${scene.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-summary.md`
-        a.click()
-        URL.revokeObjectURL(url)
+        downloadFile(
+            new Blob([md], { type: 'text/markdown' }),
+            `${scene.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-summary.md`,
+        )
     }, [summary, allScenes])
 
     return (
