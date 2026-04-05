@@ -16,9 +16,10 @@ Electron desktop application: a DM cockpit and theatrical atmosphere engine for 
 
 At the start of every conversation, before the user gives a task:
 
-1. **CLAUDE.md + MEMORY.md** load automatically — review them for current project state.
-2. **Read `planning/Sprints.md`** for active/blocked sprints and `planning/Backlog.md` for pending features.
-3. **Ask the user** what they want to work on. Don't assume.
+1. **Pull latest changes:** Run `git pull` to sync with the remote repo before doing anything else.
+2. **CLAUDE.md + MEMORY.md** load automatically — review them for current project state.
+3. **Read `planning/Sprints.md`** for active/blocked sprints and `planning/Backlog.md` for pending features.
+4. **Ask the user** what they want to work on. Don't assume.
 
 ---
 
