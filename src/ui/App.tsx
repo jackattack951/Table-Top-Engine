@@ -19,6 +19,7 @@ import { NotesTab } from './tabs/NotesTab'
 import { MediaTab } from './tabs/MediaTab'
 import { AVTab } from './tabs/AVTab'
 import { PlayersTab } from './tabs/PlayersTab'
+import { SettingsTab } from './tabs/SettingsTab'
 import { PlayerSidebar } from './components/player-sidebar'
 import { SessionControl } from './components/session-control'
 import { QuickCapture } from './components/quick-capture'
@@ -112,6 +113,7 @@ export default function App(): React.JSX.Element {
             case 'media': return <MediaTab />
             case 'players': return <PlayersTab />
             case 'av': return <AVTab />
+            case 'settings': return <SettingsTab />
         }
     }
 

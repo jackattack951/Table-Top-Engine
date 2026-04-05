@@ -10,6 +10,7 @@ const TABS = [
     { id: 'media', label: 'Media' },
     { id: 'players', label: 'Players' },
     { id: 'av', label: 'AV' },
+    { id: 'settings', label: '⚙' },
 ] as const
 
 export type TabId = typeof TABS[number]['id']

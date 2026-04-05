@@ -10304,3 +10304,100 @@ body {
 .char-roster-panel__add-btn {
     align-self: flex-start;
 }
+
+/* ─── Settings Tab ──────────────────────────────────────────────────────────── */
+
+.settings-tab {
+  padding: var(--space-4) var(--space-6);
+  max-width: 720px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.settings-section__title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-section__desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+}
+
+.settings-section__desc--muted {
+  color: var(--color-text-3);
+  font-style: italic;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 36px;
+}
+
+.settings-row__label {
+  width: 120px;
+  flex-shrink: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.settings-row__control {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.settings-row__value {
+  width: 40px;
+  text-align: right;
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.settings-slider {
+  flex: 1;
+  height: 4px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+/* Device selector */
+.settings-device-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.settings-device-selector__select {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-device-selector__error {
+  width: 100%;
+}
+
+/* Settings tab gear icon — override tab-btn for icon-only tab */
+.tab-btn[aria-controls="tabpanel-settings"] {
+  font-size: var(--text-lg);
+  min-width: 40px;
+}
