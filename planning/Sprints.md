@@ -3,7 +3,7 @@
 > Single source of truth for all sprint work. Updated after every sprint completion.
 > For backlog items not yet in active development, see `Backlog.md`.
 
-**Current test count: 879 tests passing across 50 test files.**
+**Current test count: 941 tests passing across 55 test files.**
 
 ---
 
@@ -67,8 +67,8 @@
 | 21b | DM Roll Prompt System | COMPLETE | 867 |
 | 21c | Character Select from Campaign DB | COMPLETE | 879 |
 | 22a | Scene Summary + Save Indicator + Plan/Play Mode | COMPLETE | 879 |
-| 22b | Named Saves + Undo on Load | PLANNED | — |
-| 22c | AV Output Idle Screen | PLANNED | — |
+| 22b | Named Saves + Undo on Load | COMPLETE | 941 |
+| 22c | AV Output Idle Screen | COMPLETE | 941 |
 | 23a | Settings Page + Audio Device Selection | COMPLETE | 941 |
 | 23b | Display Assignment + Volume Persistence | COMPLETE | 941 |
 | 23c | Theme Toggle + Export/Import Prefs | COMPLETE | 941 |
@@ -451,14 +451,14 @@ See `planning/Overhaul/player companion/` for detailed specs and implementation 
 
 ---
 
-## Sprint 21 — Player Companion v2: Two-Way Comms (PLANNED)
+## Sprint 21 — Player Companion v2: Two-Way Comms (COMPLETE)
 
 **Why:** The Player Companion is currently receive-only — players get HP, conditions, items, and whispers from the DM but can't initiate anything. Two-way comms (player → DM messages, raise-hand, roll responses) transforms the companion from a scoreboard into a session-interactive tool. A generalized roll prompt system lets the DM call for group checks with dice type, DC, and countdown without switching apps. Character select from the campaign DB eliminates per-session stat re-entry for regular groups.
 
 **Scope (3 phases):**
-- [ ] **Phase 21a — Player → DM Messaging + Bidirectional Whisper:** Companion sends messages to DM, raise-hand / flag button, bidirectional whisper thread.
-- [ ] **Phase 21b — DM Roll Prompt System:** DM picks die + label + optional DC + optional countdown → all/selected players see a full-screen prompt → roll → results aggregate live in the Players tab.
-- [ ] **Phase 21c — Character Select from Campaign DB:** New `player_characters` table; players select a pre-created character on join instead of entering stats manually.
+- [x] **Phase 21a — Player → DM Messaging + Bidirectional Whisper:** Companion sends messages to DM, raise-hand / flag button, bidirectional whisper thread.
+- [x] **Phase 21b — DM Roll Prompt System:** DM picks die + label + optional DC + optional countdown → all/selected players see a full-screen prompt → roll → results aggregate live in the Players tab.
+- [x] **Phase 21c — Character Select from Campaign DB:** New `player_characters` table; players select a pre-created character on join instead of entering stats manually.
 
 **Out of scope (items remaining in the LARGE backlog):** Full character creator with derived stats and Basic/Advanced modes; game system config presets (D&D 5e, PF2e, CoC JSON); session persistence (SQLite save/restore of full player state across sessions); native app wrapper (Capacitor/PWA); atmosphere broadcast to player screens; initiative integration with combat tracker.
 
@@ -469,19 +469,19 @@ See `planning/Overhaul/player companion/` for detailed specs and implementation 
 **Goal:** Players can send a message to the DM (one-on-one, not broadcast). The existing DM→Player whisper thread becomes a unified bidirectional thread per player. A "raise hand" button flags the DM's attention without a message.
 
 **Tasks:**
-- [ ] A1: Add 6 new event constants to `shared/socket-events.ts` (see below)
-- [ ] A2: Add `PlayerMessage` interface to `shared/player-types.ts` — `{ id, message, timestamp, direction: 'dm-to-player' | 'player-to-dm' }`
-- [ ] A3: Extend `PlayerCharacter` in `player-types.ts` — replace `whispers: PlayerWhisper[]` with `messages: PlayerMessage[]` (backward-compatible: import message thread renders both old whispers + new player messages); add `handRaised: boolean`
-- [ ] A4: `src/api/player-handlers.ts` — `PLAYER_MESSAGE` handler: validate token, append to player's `messages` array, relay `PLAYER_MESSAGE_RECEIVED` to cockpit room
-- [ ] A5: `player-handlers.ts` — `PLAYER_RAISE_HAND` handler: set `handRaised = true`, emit `PLAYER_HAND_UPDATE` to cockpit
-- [ ] A6: `player-handlers.ts` — `DM_DISMISS_HAND` handler: set `handRaised = false`, emit `PLAYER_HAND_UPDATE` to cockpit + `PLAYER_HAND_DISMISSED` to player
-- [ ] A7: Companion: `src/companion/components/message-input.tsx` (NEW) — compact textarea + Send button at bottom of dashboard screen; emits `PLAYER_MESSAGE`; Enter to submit, Shift+Enter for newline
-- [ ] A8: Companion: `src/companion/components/message-thread.tsx` (NEW) — scrollable unified thread; DM messages right-aligned (received), player messages left-aligned (sent); replaces old whisper list
-- [ ] A9: Companion: Raise Hand button on dashboard (header area) — toggles `handRaised` state, emits `PLAYER_RAISE_HAND`; shows "Hand raised — DM notified" feedback; grayed out until DM dismisses
-- [ ] A10: Companion: handle `PLAYER_HAND_DISMISSED` — clear raise-hand state + show brief toast
-- [ ] A11: Cockpit `src/ui/tabs/players/player-card.tsx` — notification badge (amber dot) when `handRaised === true` or unread messages exist; badge count shows unread message count
-- [ ] A12: Cockpit `player-card.tsx` — expand section: replace whisper-send-only UI with full bidirectional message thread (same `message-thread` component or equivalent) + dismiss-hand button
-- [ ] A13: Tests: extend `src/api/player-handlers.test.ts` — message relay, raise-hand state transitions, dismiss flow
+- [x] A1: Add 6 new event constants to `shared/socket-events.ts` (see below)
+- [x] A2: Add `PlayerMessage` interface to `shared/player-types.ts` — `{ id, message, timestamp, direction: 'dm-to-player' | 'player-to-dm' }`
+- [x] A3: Extend `PlayerCharacter` in `player-types.ts` — replace `whispers: PlayerWhisper[]` with `messages: PlayerMessage[]` (backward-compatible: import message thread renders both old whispers + new player messages); add `handRaised: boolean`
+- [x] A4: `src/api/player-handlers.ts` — `PLAYER_MESSAGE` handler: validate token, append to player's `messages` array, relay `PLAYER_MESSAGE_RECEIVED` to cockpit room
+- [x] A5: `player-handlers.ts` — `PLAYER_RAISE_HAND` handler: set `handRaised = true`, emit `PLAYER_HAND_UPDATE` to cockpit
+- [x] A6: `player-handlers.ts` — `DM_DISMISS_HAND` handler: set `handRaised = false`, emit `PLAYER_HAND_UPDATE` to cockpit + `PLAYER_HAND_DISMISSED` to player
+- [x] A7: Companion: `src/companion/components/message-input.tsx` (NEW) — compact textarea + Send button at bottom of dashboard screen; emits `PLAYER_MESSAGE`; Enter to submit, Shift+Enter for newline
+- [x] A8: Companion: `src/companion/components/message-thread.tsx` (NEW) — scrollable unified thread; DM messages right-aligned (received), player messages left-aligned (sent); replaces old whisper list
+- [x] A9: Companion: Raise Hand button on dashboard (header area) — toggles `handRaised` state, emits `PLAYER_RAISE_HAND`; shows "Hand raised — DM notified" feedback; grayed out until DM dismisses
+- [x] A10: Companion: handle `PLAYER_HAND_DISMISSED` — clear raise-hand state + show brief toast
+- [x] A11: Cockpit `src/ui/tabs/players/player-card.tsx` — notification badge (amber dot) when `handRaised === true` or unread messages exist; badge count shows unread message count
+- [x] A12: Cockpit `player-card.tsx` — expand section: replace whisper-send-only UI with full bidirectional message thread (same `message-thread` component or equivalent) + dismiss-hand button
+- [x] A13: Tests: extend `src/api/player-handlers.test.ts` — message relay, raise-hand state transitions, dismiss flow
 
 **New socket events:**
 ```typescript
@@ -512,19 +512,19 @@ PLAYER_HAND_DISMISSED: 'player:handDismissed',   // Server → Player: {} (clear
 **Goal:** DM selects a die type, optional label, optional DC, and optional countdown → server broadcasts a roll prompt to all (or selected) players → players roll on the companion → results appear in the DM Players tab in real time as they come in.
 
 **Tasks:**
-- [ ] B1: Add `RollPrompt`, `RollResult`, `DieType` types to `shared/player-types.ts`
-- [ ] B2: Add 6 new event constants to `shared/socket-events.ts`
-- [ ] B3: Extend `SessionState` in `player-types.ts`: `activePrompt: RollPrompt | null`, `promptResults: Record<string, RollResult>` (token → result)
-- [ ] B4: `player-handlers.ts` — `DM_ROLL_PROMPT` handler: generate `promptId`, store in SessionState, broadcast `PLAYER_ROLL_PROMPT` to player room; if `countdown > 0`, schedule `setTimeout` to auto-close prompt and emit `ROLL_PROMPT_CLOSED` after expiry
-- [ ] B5: `player-handlers.ts` — `PLAYER_ROLL_RESULT` handler: validate prompt still active + token hasn't already submitted; store result; push `ROLL_RESULTS_UPDATE` with full results array to cockpit room
-- [ ] B6: `player-handlers.ts` — `DM_CLOSE_PROMPT` handler: clear `activePrompt`, emit `ROLL_PROMPT_CLOSED` to player room, clear `promptResults`
-- [ ] B7: Companion: `src/companion/components/roll-prompt-overlay.tsx` (NEW) — full-screen overlay displayed when `PLAYER_ROLL_PROMPT` received
+- [x] B1: Add `RollPrompt`, `RollResult`, `DieType` types to `shared/player-types.ts`
+- [x] B2: Add 6 new event constants to `shared/socket-events.ts`
+- [x] B3: Extend `SessionState` in `player-types.ts`: `activePrompt: RollPrompt | null`, `promptResults: Record<string, RollResult>` (token → result)
+- [x] B4: `player-handlers.ts` — `DM_ROLL_PROMPT` handler: generate `promptId`, store in SessionState, broadcast `PLAYER_ROLL_PROMPT` to player room; if `countdown > 0`, schedule `setTimeout` to auto-close prompt and emit `ROLL_PROMPT_CLOSED` after expiry
+- [x] B5: `player-handlers.ts` — `PLAYER_ROLL_RESULT` handler: validate prompt still active + token hasn't already submitted; store result; push `ROLL_RESULTS_UPDATE` with full results array to cockpit room
+- [x] B6: `player-handlers.ts` — `DM_CLOSE_PROMPT` handler: clear `activePrompt`, emit `ROLL_PROMPT_CLOSED` to player room, clear `promptResults`
+- [x] B7: Companion: `src/companion/components/roll-prompt-overlay.tsx` (NEW) — full-screen overlay displayed when `PLAYER_ROLL_PROMPT` received
   - Shows die face (large text: "d20"), label, DC (if set), countdown ticker (counts down in real time from `endsAt`)
   - Optional modifier input (signed integer, for ability modifier)
   - "Roll" button: generates `Math.floor(Math.random() * sides) + 1`, displays result briefly (1.5s flip animation or number reveal), then emits `PLAYER_ROLL_RESULT` and closes overlay
   - Overlay auto-dismisses on `ROLL_PROMPT_CLOSED`
-- [ ] B8: Companion: handle `PLAYER_ROLL_PROMPT` in dashboard — mount overlay; handle `ROLL_PROMPT_CLOSED` — unmount
-- [ ] B9: Cockpit: `src/ui/tabs/players/roll-prompt-panel.tsx` (NEW) — panel in Players tab
+- [x] B8: Companion: handle `PLAYER_ROLL_PROMPT` in dashboard — mount overlay; handle `ROLL_PROMPT_CLOSED` — unmount
+- [x] B9: Cockpit: `src/ui/tabs/players/roll-prompt-panel.tsx` (NEW) — panel in Players tab
   - Die selector: d4 / d6 / d8 / d10 / d12 / d20 / d100 button strip (single-select)
   - Label input (e.g., "Perception Check")
   - DC input (optional, integer)
@@ -533,7 +533,7 @@ PLAYER_HAND_DISMISSED: 'player:handDismissed',   // Server → Player: {} (clear
   - "Send Roll Prompt" button → emits `DM_ROLL_PROMPT`
   - Live results list: player name + character name + roll + total + pass/fail badge (if DC set); grays out players who haven't rolled; shows countdown bar if active
   - "Close Prompt" button dismisses prompt on all players
-- [ ] B10: Tests: `player-handlers.test.ts` — prompt creation, result submission, duplicate-submit guard, auto-close timeout, close-before-all-submit, concurrent simultaneous submissions from two players arriving in the same tick (verify both recorded, no dropped result)
+- [x] B10: Tests: `player-handlers.test.ts` — prompt creation, result submission, duplicate-submit guard, auto-close timeout, close-before-all-submit, concurrent simultaneous submissions from two players arriving in the same tick (verify both recorded, no dropped result)
 
 **New types (`shared/player-types.ts`):**
 ```typescript
@@ -646,16 +646,16 @@ session-code-entry
 ```
 
 **Tasks:**
-- [ ] C1: Migration `src/core/db/migrations/007_player_characters.sql`
-- [ ] C2: `src/core/db/db.ts` — `getPlayerCharacters(campaignId)`, `createPlayerCharacter(data)`, `updatePlayerCharacter(id, data)`, `deletePlayerCharacter(id)`
-- [ ] C3: `src/api/server.ts` — REST endpoints:
+- [x] C1: Migration `src/core/db/migrations/007_player_characters.sql`
+- [x] C2: `src/core/db/db.ts` — `getPlayerCharacters(campaignId)`, `createPlayerCharacter(data)`, `updatePlayerCharacter(id, data)`, `deletePlayerCharacter(id)`
+- [x] C3: `src/api/server.ts` — REST endpoints:
   - `GET /api/sessions/:code/info` → `{ valid: boolean, campaignId: string, characterSelectMode: 'roster-only' | 'roster-and-manual' | 'manual-only', availableCharacters: PlayerCharacterRecord[] }` — validates session code and returns character roster + mode (called before join form submission; no auth token required — session code is the credential). When mode is `manual-only`, `availableCharacters` is always `[]`.
   - `GET /api/campaigns/:id/characters` → character roster for campaign (DM-facing management)
   - `POST /api/campaigns/:id/characters` → create character
   - `PATCH /api/campaigns/:id/characters/:charId` → update
   - `DELETE /api/campaigns/:id/characters/:charId` → delete
-- [ ] C4: Add `PlayerCharacterRecord` and `CharacterSelectMode` types to `shared/player-types.ts` — `CharacterSelectMode = 'roster-only' | 'roster-and-manual' | 'manual-only'`; `PlayerCharacterRecord` has typed first-class stat fields mirroring the DB columns (id, name, class, level, hpMax, hpCurrent, ac, strScore…chaScore, notes)
-- [ ] C5: Companion join flow — companion `App.tsx` state machine routes based on `characterSelectMode` from the `/info` response:
+- [x] C4: Add `PlayerCharacterRecord` and `CharacterSelectMode` types to `shared/player-types.ts` — `CharacterSelectMode = 'roster-only' | 'roster-and-manual' | 'manual-only'`; `PlayerCharacterRecord` has typed first-class stat fields mirroring the DB columns (id, name, class, level, hpMax, hpCurrent, ac, strScore…chaScore, notes)
+- [x] C5: Companion join flow — companion `App.tsx` state machine routes based on `characterSelectMode` from the `/info` response:
   - On session-code entry: call `GET /api/sessions/:code/info` → get `characterSelectMode` + `availableCharacters`
   - If `mode === 'roster-only'`: transition to `character-select` screen showing roster grid only (no "Enter Manually" button). Player must pick a character.
   - If `mode === 'roster-and-manual'`: transition to `character-select` screen showing roster grid + "Enter Manually" button. Player can pick a character or enter their own.
@@ -663,10 +663,10 @@ session-code-entry
   - `src/companion/screens/character-select-screen.tsx` (NEW): grid of character cards (name, class, level, HP); "Play as [Name]" pre-fills the join-form state; "Enter Manually" button conditionally rendered (only when mode is `roster-and-manual`); "Back" returns to code-entry
   - After selection (or manual fallback): transition to `join-form` with pre-populated character state
   - On join-form submit: emit `PLAYER_JOIN` with full character stats as normal — no changes to the join handler
-- [ ] C6: Cockpit: `src/ui/tabs/players/character-roster-panel.tsx` (NEW) — embedded in Campaign Home view or as a sub-section of the Players tab (visible when not in live session)
+- [x] C6: Cockpit: `src/ui/tabs/players/character-roster-panel.tsx` (NEW) — embedded in Campaign Home view or as a sub-section of the Players tab (visible when not in live session)
   - List of characters + "Add Character" inline form (name, class, level, HP, AC, ability scores)
   - Edit/delete inline actions
-- [ ] C7: Tests: `player-characters.test.ts` (NEW) — DB CRUD round-trips; `GET /api/sessions/:code/info` returns roster; empty roster returns valid response with empty array
+- [x] C7: Tests: `player-characters.test.ts` (NEW) — DB CRUD round-trips; `GET /api/sessions/:code/info` returns roster; empty roster returns valid response with empty array
 
 **No new socket events** — roster delivery is REST-only; `PLAYER_JOIN` payload is unchanged.
 
@@ -684,14 +684,14 @@ session-code-entry
 
 ---
 
-## Sprint 22 — Scene Save + Output Idle Screen (PLANNED)
+## Sprint 22 — Scene Save + Output Idle Screen (COMPLETE — 941 tests, 55 test files)
 
 **Why:** Sprint 20 was superseded by this sprint, which incorporates the full Sprint 20 spec (scene summary, save indicator, plan/play mode — see `planning/Overhaul/Scene Save/scene-save-spec.md`) and adds named saves, undo on scene load, and a polished AV idle screen. Together these make scene prep feel deliberate and the AV output feel finished at all times — even when no scene is loaded.
 
 **Scope (3 phases):**
-- [ ] **Phase 22a — Scene Summary + Save Indicator + Plan/Play Mode:** Full implementation of the Sprint 20 spec. Summary component in SceneCard, save indicator, Plan/Play editing gating.
-- [ ] **Phase 22b — Named Saves + Undo on Load:** Snapshot table, DM can save/name/restore scene snapshots, auto-undo point created before every TAKE.
-- [ ] **Phase 22c — AV Output Idle Screen:** PixiJS idle screen (logo glow + QR code + session code) shown on AV Display when no scene is loaded.
+- [x] **Phase 22a — Scene Summary + Save Indicator + Plan/Play Mode:** Full implementation of the Sprint 20 spec. Summary component in SceneCard, save indicator, Plan/Play editing gating.
+- [x] **Phase 22b — Named Saves + Undo on Load:** Snapshot table, DM can save/name/restore scene snapshots, auto-undo point created before every TAKE.
+- [x] **Phase 22c — AV Output Idle Screen:** PixiJS idle screen (logo glow + QR code + session code) shown on AV Display when no scene is loaded.
 
 ---
 
@@ -700,19 +700,19 @@ session-code-entry
 > This is the Sprint 20 spec in full. Refer to `planning/Overhaul/Scene Save/scene-save-spec.md` for detailed implementation notes. Summary of tasks:
 
 **Tasks:**
-- [ ] A1: `GET /api/scenes/:id/summary` endpoint in `src/api/server.ts` → `{ scene, npcs, notes, items }`
-- [ ] A2: `src/ui/hooks/use-scene-summary.ts` (NEW) — lazy fetch hook, cached by sceneId
-- [ ] A3: `src/ui/components/scene-summary.tsx` (NEW) — read-only grid: Media, Atmosphere, Fog, NPCs, Items, Notes, Branches sections. **Note:** Item status badges (hidden/loot/acquired) depend on the `status` column in `scene_items`, which doesn't exist yet (SMALL backlog item "Item States in Quick Reference"). The Items section must degrade gracefully — render item names without status badges if the column is absent, rather than failing.
-- [ ] A4: `buildSceneSummaryMarkdown(summary)` pure function (in same file) — extracted for testability
-- [ ] A5: Export buttons: "Copy Summary" (clipboard) + "Download .md" (Blob URL)
-- [ ] A6: Wire `<SceneSummary>` into `src/ui/components/scene-card.tsx` — first thing rendered when card expands
-- [ ] A7: CSS — `.scene-summary`, `.scene-summary__section`, `.scene-summary__label`, `.scene-summary__value`, `.scene-summary__badge`, `.scene-summary__actions` in `src/ui/index.css`
-- [ ] A8: `lastSavedAt: number | null` + `setLastSavedAt(ts)` in `src/ui/stores/scene-store.ts`; resets to `null` on active scene change
-- [ ] A9: `persistToScene()` in `src/ui/lib/sync/connection.ts` — call `setLastSavedAt(Date.now())` on successful PATCH resolve
-- [ ] A10: "Saved" badge on `scene-card.tsx` — appears when `lastSavedAt` changes, fades out over 2s via `save-flash` keyframe
-- [ ] A11: Plan/Play gating — `appMode === 'play'` read from `useAppStore` in: `scene-card.tsx` (hide media pickers, branch add/remove, note link/unlink), `ScenesTab.tsx` (hide + New Scene), `scene-timeline.tsx` (`draggable={!isPlayMode}`), `bg-settings-zone.tsx` + `gb-settings-zone.tsx` (hide media browse buttons)
-- [ ] A12: `ModeToggle.tsx` — add mode description subtitles: "Full editing" under Prep, "Session mode" under Play
-- [ ] A13: Tests: `use-scene-summary.test.ts`, `scene-summary.test.ts` (markdown output), extend `scene-store.test.ts` (lastSavedAt transitions)
+- [x] A1: `GET /api/scenes/:id/summary` endpoint in `src/api/server.ts` → `{ scene, npcs, notes, items }`
+- [x] A2: `src/ui/hooks/use-scene-summary.ts` (NEW) — lazy fetch hook, cached by sceneId
+- [x] A3: `src/ui/components/scene-summary.tsx` (NEW) — read-only grid: Media, Atmosphere, Fog, NPCs, Items, Notes, Branches sections. **Note:** Item status badges (hidden/loot/acquired) depend on the `status` column in `scene_items`, which doesn't exist yet (SMALL backlog item "Item States in Quick Reference"). The Items section must degrade gracefully — render item names without status badges if the column is absent, rather than failing.
+- [x] A4: `buildSceneSummaryMarkdown(summary)` pure function (in same file) — extracted for testability
+- [x] A5: Export buttons: "Copy Summary" (clipboard) + "Download .md" (Blob URL)
+- [x] A6: Wire `<SceneSummary>` into `src/ui/components/scene-card.tsx` — first thing rendered when card expands
+- [x] A7: CSS — `.scene-summary`, `.scene-summary__section`, `.scene-summary__label`, `.scene-summary__value`, `.scene-summary__badge`, `.scene-summary__actions` in `src/ui/index.css`
+- [x] A8: `lastSavedAt: number | null` + `setLastSavedAt(ts)` in `src/ui/stores/scene-store.ts`; resets to `null` on active scene change
+- [x] A9: `persistToScene()` in `src/ui/lib/sync/connection.ts` — call `setLastSavedAt(Date.now())` on successful PATCH resolve
+- [x] A10: "Saved" badge on `scene-card.tsx` — appears when `lastSavedAt` changes, fades out over 2s via `save-flash` keyframe
+- [x] A11: Plan/Play gating — `appMode === 'play'` read from `useAppStore` in: `scene-card.tsx` (hide media pickers, branch add/remove, note link/unlink), `ScenesTab.tsx` (hide + New Scene), `scene-timeline.tsx` (`draggable={!isPlayMode}`), `bg-settings-zone.tsx` + `gb-settings-zone.tsx` (hide media browse buttons)
+- [x] A12: `ModeToggle.tsx` — add mode description subtitles: "Full editing" under Prep, "Session mode" under Play
+- [x] A13: Tests: `use-scene-summary.test.ts`, `scene-summary.test.ts` (markdown output), extend `scene-store.test.ts` (lastSavedAt transitions)
 
 **Key files:** See `planning/Overhaul/Scene Save/scene-save-spec.md` — Files Summary table.
 
@@ -738,21 +738,21 @@ CREATE INDEX idx_snapshots_scene ON scene_snapshots(scene_id, created_at DESC);
 ```
 
 **Tasks:**
-- [ ] B1: Migration `src/core/db/migrations/008_scene_snapshots.sql`
-- [ ] B2: `src/core/db/db.ts` — `createSnapshot(sceneId, campaignId, name, snapshotData, isAuto)`, `getSnapshots(sceneId)` (named only, ordered newest-first), `deleteSnapshot(id)`, `restoreSnapshot(id)` (deserializes `snapshot_data` → `PATCH /api/scenes/:id` — **AV/atmosphere fields only**: `backgroundPath`, `backgroundAssetId`, `gameboardPath`, `gameboardAssetId`, `particles`, `colorGrade`, `gbColorGrade`, `audioMood`, `fogEnabled`, `fogData`, `overlays`, `notes`, `scratchpad`; structural fields `id`, `sortOrder`, `nextSceneId`, `branches`, `campaignId` are never overwritten), `pruneAutoSnapshots(sceneId, keepCount = 5)` (trims old auto-snapshots)
-- [ ] B3: REST endpoints in `src/api/server.ts`:
+- [x] B1: Migration `src/core/db/migrations/008_scene_snapshots.sql`
+- [x] B2: `src/core/db/db.ts` — `createSnapshot(sceneId, campaignId, name, snapshotData, isAuto)`, `getSnapshots(sceneId)` (named only, ordered newest-first), `deleteSnapshot(id)`, `restoreSnapshot(id)` (deserializes `snapshot_data` → `PATCH /api/scenes/:id` — **AV/atmosphere fields only**: `backgroundPath`, `backgroundAssetId`, `gameboardPath`, `gameboardAssetId`, `particles`, `colorGrade`, `gbColorGrade`, `audioMood`, `fogEnabled`, `fogData`, `overlays`, `notes`, `scratchpad`; structural fields `id`, `sortOrder`, `nextSceneId`, `branches`, `campaignId` are never overwritten), `pruneAutoSnapshots(sceneId, keepCount = 5)` (trims old auto-snapshots)
+- [x] B3: REST endpoints in `src/api/server.ts`:
   - `GET /api/scenes/:id/snapshots` → named snapshots list
   - `POST /api/scenes/:id/snapshots` → create named save `{ name }` → `201 { snapshot }`
   - `DELETE /api/scenes/snapshots/:snapshotId` → delete
   - `POST /api/scenes/snapshots/:snapshotId/restore` → apply snapshot data back to scene → emit `SCENE_SNAPSHOT_RESTORED` to cockpit room
-- [ ] B4: `src/ui/hooks/use-snapshots.ts` (NEW) — fetch + mutate hook; returns `{ snapshots, saving, createSnapshot, deleteSnapshot, restoreSnapshot }`
-- [ ] B5: "Save Snapshot" button in `scene-card.tsx` (Plan mode only, appears in action row) — inline name input (defaults to "Snapshot — [date/time]"); calls `createSnapshot`
-- [ ] B6: Snapshots list panel below summary in expanded SceneCard — shows named saves with timestamp and "Restore" button; empty state: "No named saves yet"
-- [ ] B7: Auto-undo point on TAKE — triggered in the TAKE button `onClick` handler in `src/ui/tabs/dashboard/transport-bar.tsx`, *before* calling `takeScene(scenes)`. **Not inside `takeScene()` itself** — Zustand actions are pure state mutations and must not make REST calls. Sequence: onClick → `POST /api/scenes/:id/snapshots` (isAuto, name `"Auto — before TAKE"`) → on success, store returned `snapshotId` via `setLastUndoSnapshotId`, call `pruneAutoSnapshots` (auto-snapshots only, keep last 5) → then call `takeScene(scenes)`.
-- [ ] B8: Undo state in scene-store: `lastUndoSnapshotId: string | null` + `setLastUndoSnapshotId(id: string | null)`; cleared after 15s via `setTimeout` in the same TransportBar handler that set it
-- [ ] B9: "Undo" button in `src/ui/tabs/dashboard/transport-bar.tsx` — visible only when `lastUndoSnapshotId !== null`; calls `restoreSnapshot(lastUndoSnapshotId)` then clears state; disappears after 15s or when clicked
-- [ ] B10: Socket event `SCENE_SNAPSHOT_RESTORED` → server emits to cockpit room after restore → cockpit refreshes active scene via `refetchScene()`
-- [ ] B11: Tests: `snapshot-crud.test.ts` (NEW) — create/list/delete/restore round-trips; scene-store undo timeout; prune logic
+- [x] B4: `src/ui/hooks/use-snapshots.ts` (NEW) — fetch + mutate hook; returns `{ snapshots, saving, createSnapshot, deleteSnapshot, restoreSnapshot }`
+- [x] B5: "Save Snapshot" button in `scene-card.tsx` (Plan mode only, appears in action row) — inline name input (defaults to "Snapshot — [date/time]"); calls `createSnapshot`
+- [x] B6: Snapshots list panel below summary in expanded SceneCard — shows named saves with timestamp and "Restore" button; empty state: "No named saves yet"
+- [x] B7: Auto-undo point on TAKE — triggered in the TAKE button `onClick` handler in `src/ui/tabs/dashboard/transport-bar.tsx`, *before* calling `takeScene(scenes)`. **Not inside `takeScene()` itself** — Zustand actions are pure state mutations and must not make REST calls. Sequence: onClick → `POST /api/scenes/:id/snapshots` (isAuto, name `"Auto — before TAKE"`) → on success, store returned `snapshotId` via `setLastUndoSnapshotId`, call `pruneAutoSnapshots` (auto-snapshots only, keep last 5) → then call `takeScene(scenes)`.
+- [x] B8: Undo state in scene-store: `lastUndoSnapshotId: string | null` + `setLastUndoSnapshotId(id: string | null)`; cleared after 15s via `setTimeout` in the same TransportBar handler that set it
+- [x] B9: "Undo" button in `src/ui/tabs/dashboard/transport-bar.tsx` — visible only when `lastUndoSnapshotId !== null`; calls `restoreSnapshot(lastUndoSnapshotId)` then clears state; disappears after 15s or when clicked
+- [x] B10: Socket event `SCENE_SNAPSHOT_RESTORED` → server emits to cockpit room after restore → cockpit refreshes active scene via `refetchScene()`
+- [x] B11: Tests: `snapshot-crud.test.ts` (NEW) — create/list/delete/restore round-trips; scene-store undo timeout; prune logic
 
 **New socket events:**
 ```typescript
@@ -785,19 +785,19 @@ SCENE_SNAPSHOT_RESTORED: 'scene:snapshotRestored'  // Server → Cockpit: { scen
 - Idle screen hides immediately on `SCENE_LOAD` / `STATE_SYNC` with a loaded scene; re-shows on `SESSION_ENDED` or if `STATE_SYNC` contains no active scene.
 
 **Tasks:**
-- [ ] C1: `src/systems/av/idle-screen.ts` (NEW) — `IdleScreen` class
+- [x] C1: `src/systems/av/idle-screen.ts` (NEW) — `IdleScreen` class
   - `constructor(app: PIXI.Application)` — creates its own `PIXI.Container`, calls `app.stage.addChildAt(this.container, 0)` during construction so it renders behind all LayerStack layers
   - `show(qrDataUrl: string | null, sessionCode: string | null)` — makes container visible; starts RAF glow loop; renders QR sprite + session code `PIXI.Text` centered below logo; QR hidden if `qrDataUrl` is null
   - `hide()` — sets `container.visible = false`; cancels RAF
   - `destroy()` — removes container from stage; cancels RAF; cleanup
   - Logo: `PIXI.Graphics` circle/ring with pulsing alpha (0.4–1.0 over 3s sinusoidal) + centered "STAGE MANAGER" `PIXI.Text` in brand font
   - QR: `fetch(qrDataUrl)` → `Image` → `PIXI.Texture` (use existing extensionless URL load pattern from Pitfall #10)
-- [ ] C2: AV Display `src/systems/av/main.tsx` — instantiate `IdleScreen` **before** `new LayerStack(app)` so idle container sits at stage child index 0; call `idleScreen.show(qrDataUrl, sessionCode)` on startup
-- [ ] C3: AV Display — handle `STATE_SYNC`: the existing handler casts to `{ activeSceneId?: string | null }` — check `!state.activeSceneId` → `idleScreen.show(...)`; if `state.activeSceneId` present → `idleScreen.hide()`. *(Field is `activeSceneId`, not `sceneId` — confirmed in existing `main.tsx:355`.)*
-- [ ] C4: AV Display — handle `SCENE_LOAD` → `idleScreen.hide()`; handle `SESSION_ENDED` → `idleScreen.show(...)`
-- [ ] C5: AV Display — handle `SESSION_QR_OVERLAY` (already wired in Sprint 11): if idle screen visible, call `idleScreen.show(payload.qrDataUrl, payload.sessionCode)` to update QR in place
-- [ ] C6: `electron/main.ts` — after Express is ready and session code is generated, emit `SESSION_QR_OVERLAY` with QR data to `av-display` room so idle screen shows on first AV window open
-- [ ] C7: Tests: `idle-screen.test.ts` (NEW) — show/hide lifecycle with mock PixiJS Application and Container; verify `addChildAt(container, 0)` called on construction; no RAF leaks on destroy
+- [x] C2: AV Display `src/systems/av/main.tsx` — instantiate `IdleScreen` **before** `new LayerStack(app)` so idle container sits at stage child index 0; call `idleScreen.show(qrDataUrl, sessionCode)` on startup
+- [x] C3: AV Display — handle `STATE_SYNC`: the existing handler casts to `{ activeSceneId?: string | null }` — check `!state.activeSceneId` → `idleScreen.show(...)`; if `state.activeSceneId` present → `idleScreen.hide()`. *(Field is `activeSceneId`, not `sceneId` — confirmed in existing `main.tsx:355`.)*
+- [x] C4: AV Display — handle `SCENE_LOAD` → `idleScreen.hide()`; handle `SESSION_ENDED` → `idleScreen.show(...)`
+- [x] C5: AV Display — handle `SESSION_QR_OVERLAY` (already wired in Sprint 11): if idle screen visible, call `idleScreen.show(payload.qrDataUrl, payload.sessionCode)` to update QR in place
+- [x] C6: `electron/main.ts` — after Express is ready and session code is generated, emit `SESSION_QR_OVERLAY` with QR data to `av-display` room so idle screen shows on first AV window open
+- [x] C7: Tests: `idle-screen.test.ts` (NEW) — show/hide lifecycle with mock PixiJS Application and Container; verify `addChildAt(container, 0)` called on construction; no RAF leaks on destroy
 
 **Key files:**
 | File | Action |
@@ -840,7 +840,7 @@ SCENE_SNAPSHOT_RESTORED: 'scene:snapshotRestored'  // Server → Cockpit: { scen
 **Goal:** New Settings tab visible in the cockpit TabBar. Audio output device selection via `HTMLMediaElement.setSinkId()` scoped to video elements. All settings stored in `localStorage` so they survive app restarts without a DB migration.
 
 **Tasks:**
-- [ ] A1: `src/ui/stores/settings-store.ts` (NEW) — Zustand store with `localStorage` persistence via `zustand/middleware` `persist`. **Note:** No existing store uses the `persist` middleware — this is a new pattern in the codebase. Use storage key `'stage-manager-settings'` and include a `version: 1` field in the persisted state for future migration compatibility (zustand `persist` supports a `migrate` option). Ensure the store hydrates synchronously on mount so settings are available before `initSync()` fires.
+- [x] A1: `src/ui/stores/settings-store.ts` (NEW) — Zustand store with `localStorage` persistence via `zustand/middleware` `persist`. **Note:** No existing store uses the `persist` middleware — this is a new pattern in the codebase. Use storage key `'stage-manager-settings'` and include a `version: 1` field in the persisted state for future migration compatibility (zustand `persist` supports a `migrate` option). Ensure the store hydrates synchronously on mount so settings are available before `initSync()` fires.
   ```typescript
   interface SettingsState {
       audioOutputDeviceId: string           // '' = system default
@@ -851,19 +851,19 @@ SCENE_SNAPSHOT_RESTORED: 'scene:snapshotRestored'  // Server → Cockpit: { scen
       gbVideoVolumeDefault: number
   }
   ```
-- [ ] A2: `src/systems/audio/audio-device-manager.ts` (NEW) — `AudioDeviceManager` singleton:
+- [x] A2: `src/systems/audio/audio-device-manager.ts` (NEW) — `AudioDeviceManager` singleton:
   - `enumerateOutputDevices()` → `Promise<MediaDeviceInfo[]>` (filters `audiooutput`, calls `navigator.mediaDevices.enumerateDevices()`)
   - `setOutputDevice(deviceId: string)` → calls `setSinkId(deviceId)` on **`HTMLVideoElement` instances only** (BG and GB video elements in the AV Display). This covers the most impactful routing path with a well-supported API.
   - **Out of scope for 23a:** `AudioContext.setSinkId()` (Chrome 110+ only, separate API) for the SFX soundboard and Tone.js mood engine AudioContexts — add to backlog as a follow-up item once `HTMLVideoElement` routing is validated.
   - Must handle browsers without `setSinkId` support gracefully (log warning, no throw)
-- [ ] A3: `src/ui/tabs/SettingsTab.tsx` (NEW) — full-page settings layout:
+- [x] A3: `src/ui/tabs/SettingsTab.tsx` (NEW) — full-page settings layout:
   - Section headers (styled like existing tab section headers): "Audio", "Volumes", "Display" (placeholder for 23b), "Companion" (placeholder for 23b), "Appearance" (placeholder for 23c), "Data" (placeholder for 23c)
   - Audio section: `<DeviceSelector>` component + "Refresh Devices" button
   - Volumes section: six labeled sliders (Master, Music, SFX, BG Video, GB Video, Ambience) that set `settings-store` defaults
-- [ ] A4: `src/ui/tabs/settings/device-selector.tsx` (NEW) — `<select className="form-select">` populated from `enumerateOutputDevices()`; "System Default" as first option (empty string value); calls `AudioDeviceManager.setOutputDevice` on change; handles permission denial gracefully
-- [ ] A5: Add "Settings" entry to TabBar in `src/ui/App.tsx` (or `src/ui/components/TabBar.tsx`) — gear icon, last tab, always visible
-- [ ] A6: CSS — settings tab layout: `src/ui/index.css` — `.settings-tab`, `.settings-section`, `.settings-section__title`, `.settings-row`, `.settings-row__label`, `.settings-row__control`
-- [ ] A7: Tests: `settings-store.test.ts` (NEW) — default values, persist/hydrate cycle; `audio-device-manager.test.ts` (NEW) — mock `navigator.mediaDevices`, test `setSinkId` call, test graceful degradation
+- [x] A4: `src/ui/tabs/settings/device-selector.tsx` (NEW) — `<select className="form-select">` populated from `enumerateOutputDevices()`; "System Default" as first option (empty string value); calls `AudioDeviceManager.setOutputDevice` on change; handles permission denial gracefully
+- [x] A5: Add "Settings" entry to TabBar in `src/ui/App.tsx` (or `src/ui/components/TabBar.tsx`) — gear icon, last tab, always visible
+- [x] A6: CSS — settings tab layout: `src/ui/index.css` — `.settings-tab`, `.settings-section`, `.settings-section__title`, `.settings-row`, `.settings-row__label`, `.settings-row__control`
+- [x] A7: Tests: `settings-store.test.ts` (NEW) — default values, persist/hydrate cycle; `audio-device-manager.test.ts` (NEW) — mock `navigator.mediaDevices`, test `setSinkId` call, test graceful degradation
 
 **Key files:**
 | File | Action |
@@ -883,22 +883,22 @@ SCENE_SNAPSHOT_RESTORED: 'scene:snapshotRestored'  // Server → Cockpit: { scen
 **Goal:** Extract display assignment from the AV toolbar into a richer Settings panel. Apply volume defaults from settings store when a session starts. Add companion lobby configuration to Settings.
 
 **Tasks:**
-- [ ] B1: `src/ui/tabs/settings/display-assignment-panel.tsx` (NEW) — full-detail display assignment:
+- [x] B1: `src/ui/tabs/settings/display-assignment-panel.tsx` (NEW) — full-detail display assignment:
   - Shows all connected displays with name, resolution, refresh rate (from `output-store.ts` `DisplayInfo`)
   - Assigns BG / GB roles via dropdown per display (same logic as compact av-toolbar, richer labeling)
   - "Open BG Output" / "Open GB Output" buttons (windowed pop-out option)
   - "No display connected" empty state with instructions
-- [ ] B2: `src/ui/tabs/av/av-toolbar.tsx` — keep compact status-dot + quick-assign variant; add "Configure in Settings →" link that switches active tab to Settings
-- [ ] B3: Volume defaults application: in `src/ui/lib/sync.ts` `initSync()` function — after socket connects (i.e., `hasLaunched = true`), read `settingsStore.{x}VolumeDefault` values and emit the corresponding volume socket events (`MASTER_VOLUME`, `MUSIC_VOLUME`, etc.) to initialize server state from saved defaults
-- [ ] B4: `src/ui/tabs/settings/companion-settings-panel.tsx` (NEW):
+- [x] B2: `src/ui/tabs/av/av-toolbar.tsx` — keep compact status-dot + quick-assign variant; add "Configure in Settings →" link that switches active tab to Settings
+- [x] B3: Volume defaults application: in `src/ui/lib/sync.ts` `initSync()` function — after socket connects (i.e., `hasLaunched = true`), read `settingsStore.{x}VolumeDefault` values and emit the corresponding volume socket events (`MASTER_VOLUME`, `MUSIC_VOLUME`, etc.) to initialize server state from saved defaults
+- [x] B4: `src/ui/tabs/settings/companion-settings-panel.tsx` (NEW):
   - **Character select mode:** 3-option segmented control — `roster-only` ("Pre-built only — players must pick from your roster"), `roster-and-manual` ("Roster + custom — players can pick or enter their own"), `manual-only` ("Manual entry only — players enter their own stats"). Default: `manual-only`. Stored in settings-store as `characterSelectMode`.
   - Max players: number input (1–8, default 8) → stored in settings-store
   - Lobby approval mode: toggle "Auto-approve" vs "Manual approval" → stored in settings-store
   - Require ready check: checkbox → stored in settings-store
   - Session code display length: number input (4–8 chars, default 6) → stored in settings-store
-- [ ] B5: Wire companion settings to server: on `SESSION_GO_LIVE`, include `lobbyConfig` from settings-store in payload (including `characterSelectMode`); `player-handlers.ts` respects `maxPlayers` cap on `PLAYER_JOIN`; `GET /api/sessions/:code/info` reads `characterSelectMode` from session config to send to companion
-- [ ] B6: Extend `settings-store.ts` with companion settings fields including `characterSelectMode: 'roster-only' | 'roster-and-manual' | 'manual-only'` (default: `'manual-only'`)
-- [ ] B7: Tests: `display-assignment-panel.test.ts` — output store subscription, role assignment call; extend `settings-store.test.ts` — companion settings fields
+- [x] B5: Wire companion settings to server: on `SESSION_GO_LIVE`, include `lobbyConfig` from settings-store in payload (including `characterSelectMode`); `player-handlers.ts` respects `maxPlayers` cap on `PLAYER_JOIN`; `GET /api/sessions/:code/info` reads `characterSelectMode` from session config to send to companion
+- [x] B6: Extend `settings-store.ts` with companion settings fields including `characterSelectMode: 'roster-only' | 'roster-and-manual' | 'manual-only'` (default: `'manual-only'`)
+- [x] B7: Tests: `display-assignment-panel.test.ts` — output store subscription, role assignment call; extend `settings-store.test.ts` — companion settings fields
 
 **Key files:**
 | File | Action |
@@ -924,14 +924,14 @@ SCENE_SNAPSHOT_RESTORED: 'scene:snapshotRestored'  // Server → Cockpit: { scen
 - Export/import: round-trip JSON (`{ version: 1, settings: SettingsState, theme, density }`). Version field required for future migration compatibility.
 
 **Tasks:**
-- [ ] C1: `shared/design-tokens.css` — add `[data-theme="light"]` override block covering all `--color-*` custom properties with the warm parchment palette; add `[data-density="compact"]` block reducing `--spacing-xs` through `--spacing-xl` by 25%
-- [ ] C2: `src/ui/tabs/settings/theme-toggle.tsx` (NEW) — two-button toggle: "Dark" (default) / "Light"; sets `document.documentElement.setAttribute('data-theme', ...)` + writes to `localStorage('theme')`; also reads `localStorage` on mount to restore saved theme
-- [ ] C3: `src/ui/tabs/settings/density-toggle.tsx` (NEW) — two-button toggle: "Comfortable" / "Compact"; sets `data-density` attribute + writes to `localStorage('density')`
-- [ ] C4: `src/ui/App.tsx` — on mount, read `localStorage('theme')` and `localStorage('density')` and apply to `document.documentElement` before first render (prevents flash-of-wrong-theme)
-- [ ] C5: Export: "Export Settings" button in SettingsTab → serializes `useSettingsStore.getState()` + theme + density + version field → `new Blob([JSON.stringify(...)])` → `<a download="stage-manager-settings.json">` click trigger
-- [ ] C6: Import: file input (`.json` accept) → `FileReader` → validate schema (check `version` field, check known keys) → `useSettingsStore.setState(...)` → apply theme/density to DOM → show "Settings imported" toast
-- [ ] C7: Schema validation helper `validateSettingsExport(data: unknown): SettingsExport | null` (in `settings-store.ts`) — returns `null` on invalid shape; never throws
-- [ ] C8: Tests: **No jsdom** — consistent with project test conventions (node env, no DOM rendering). `theme-toggle.test.ts` should test `localStorage` read/write logic only (not `document.documentElement` attribute mutations — those require jsdom). `settings-store.test.ts` — export round-trip JSON serialization, `validateSettingsExport` with valid payload, `validateSettingsExport` with invalid/missing fields returns `null`.
+- [x] C1: `shared/design-tokens.css` — add `[data-theme="light"]` override block covering all `--color-*` custom properties with the warm parchment palette; add `[data-density="compact"]` block reducing `--spacing-xs` through `--spacing-xl` by 25%
+- [x] C2: `src/ui/tabs/settings/theme-toggle.tsx` (NEW) — two-button toggle: "Dark" (default) / "Light"; sets `document.documentElement.setAttribute('data-theme', ...)` + writes to `localStorage('theme')`; also reads `localStorage` on mount to restore saved theme
+- [x] C3: `src/ui/tabs/settings/density-toggle.tsx` (NEW) — two-button toggle: "Comfortable" / "Compact"; sets `data-density` attribute + writes to `localStorage('density')`
+- [x] C4: `src/ui/App.tsx` — on mount, read `localStorage('theme')` and `localStorage('density')` and apply to `document.documentElement` before first render (prevents flash-of-wrong-theme)
+- [x] C5: Export: "Export Settings" button in SettingsTab → serializes `useSettingsStore.getState()` + theme + density + version field → `new Blob([JSON.stringify(...)])` → `<a download="stage-manager-settings.json">` click trigger
+- [x] C6: Import: file input (`.json` accept) → `FileReader` → validate schema (check `version` field, check known keys) → `useSettingsStore.setState(...)` → apply theme/density to DOM → show "Settings imported" toast
+- [x] C7: Schema validation helper `validateSettingsExport(data: unknown): SettingsExport | null` (in `settings-store.ts`) — returns `null` on invalid shape; never throws
+- [x] C8: Tests: **No jsdom** — consistent with project test conventions (node env, no DOM rendering). `theme-toggle.test.ts` should test `localStorage` read/write logic only (not `document.documentElement` attribute mutations — those require jsdom). `settings-store.test.ts` — export round-trip JSON serialization, `validateSettingsExport` with valid payload, `validateSettingsExport` with invalid/missing fields returns `null`.
 
 **New types (`src/ui/stores/settings-store.ts`):**
 ```typescript
