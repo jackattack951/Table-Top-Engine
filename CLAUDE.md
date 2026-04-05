@@ -2,7 +2,7 @@
 
 ## Project Status
 
-**Sprints 0–19 Complete + 17c Blocked + Sprint 20 Planned** — 836 tests passing (47 test files). Player Companion MVP done. Notes system Phase 1 done. Sprint 18 (Program/Preview + Crossfade + Sliders) complete. Sprint 19 (PDF Import + Parser Enhancement) complete. Sprint 20 (Scene Save + Summary + Plan/Play Mode) planned — full spec at `planning/Overhaul/Scene Save/scene-save-spec.md`. Sprint 17c (ambient audio) blocked on OGG audio files. Sprint 17e (demo tokens + packaging) follows 17c. See `planning/Sprints.md` for full sprint history and `planning/Backlog.md` for the feature backlog.
+**Sprints 0–23 Complete + 17c Blocked** — 941 tests passing (55 test files). Player Companion MVP done. Notes system Phase 1 done. Sprint 18 (Program/Preview + Crossfade + Sliders) complete. Sprint 19 (PDF Import + Parser Enhancement) complete. Sprint 20 (Scene Save + Summary + Plan/Play Mode) complete. Sprint 21 (Player Companion v2: Two-Way Comms) complete. Sprint 22 (Scene Summary + Save Indicator + Plan/Play Mode) complete. Sprint 23 (Settings Tab + Theme/Density Toggles + Audio Device Manager) complete. Sprint 17c (ambient audio) blocked on OGG audio files. Sprint 17e (demo tokens + packaging) follows 17c. CampaignSelector removed — superseded by launch screen campaign selection. See `planning/Sprints.md` for full sprint history and `planning/Backlog.md` for the feature backlog.
 
 ## Project Overview
 
@@ -271,6 +271,7 @@ Custom CSS design system — no Tailwind, no CSS-in-JS, no preprocessors. All st
 - `src/ui/stores/items-store.ts` — Item entity CRUD
 - `src/ui/stores/output-store.ts` — Output management (DisplayInfo, OutputRole)
 - `src/ui/stores/player-store.ts` — Connected player sessions
+- `src/ui/stores/settings-store.ts` — Persisted user settings (theme, density, audio devices, companion config). Uses Zustand `persist` middleware with key `stage-manager-settings`.
 
 ### UI
 - `src/ui/App.tsx` — Root UI: cinematic intro → launch screen → cockpit
@@ -285,6 +286,7 @@ Custom CSS design system — no Tailwind, no CSS-in-JS, no preprocessors. All st
 - `src/systems/av/layer-stack.ts` — PixiJS layer compositor (8 layers)
 - `src/systems/av/fog-of-war.ts` — OffscreenCanvas fog → PixiJS Sprite via CanvasSource
 - `src/systems/av/color-grade-filter.ts` — GLSL color grade filter
+- `src/systems/av/idle-screen.ts` — Idle/standby overlay added to `app.stage` at index 0, BELOW LayerStack
 
 ### Companion
 - `src/companion/App.tsx` — Player companion root (state-machine: join→lobby→dashboard→ended)
@@ -304,6 +306,7 @@ Migrations live in `src/core/db/migrations/`:
 | `004_fog_of_war.sql` | fog_data BLOB, fog_enabled |
 | `005_media_library.sql` | assets table, asset_campaign_tags |
 | `006_gb_color_grade.sql` | gb_color_grade column on scenes |
+| `010_player_characters.sql` | player_characters table (campaign-scoped, Sprint 21c) |
 
 ---
 
@@ -321,6 +324,14 @@ Migrations live in `src/core/db/migrations/`:
 10. **PixiJS extensionless URL loading:** `PIXI.Assets.load()` fails on URLs without extensions. Use `fetch()` → `blob()` → `Image()` → `decode()` → `ImageSource` → `Texture`.
 11. **Role-specific socket event targeting:** Add `target: 'BG' | 'GB'` to payloads. Each AV Display checks its `role` URL param before applying. Server caches state per-target for STATE_SYNC.
 12. **Fog of War pipeline completeness:** All four events (FOG_BRUSH, FOG_UPDATE, FOG_TOGGLE, FOG_RESET) must be emitted by cockpit AND handled by AV Display.
+13. **Zustand persist middleware:** Use `persist` from `zustand/middleware` for settings that survive restarts. Storage key convention: `stage-manager-settings`. Always include a `version` field for future migrations.
+14. **Volume defaults — apply once per session:** Apply default volumes on session start using a `_volumesInitialized` guard flag. Without this guard, every socket reconnect re-applies defaults and overwrites live DM adjustments.
+15. **Companion socket leak:** In `initCompanionSync`, always call `socket.disconnect()` on the previous socket before creating a new one. Missing this causes event listener accumulation across reconnects.
+16. **AppearanceToggle generic:** `ThemeToggle` and `DensityToggle` both use the shared `AppearanceToggle<T>` component. Use this pattern for any future two-option toggle (type-safe, consistent UI, single implementation).
+17. **`setSinkId` scope:** `HTMLVideoElement.setSinkId()` works for routing video audio to a specific output device. `AudioContext` has no `setSinkId` — routing AudioContext output requires a separate implementation. Don't assume parity.
+18. **Character select has 3 modes:** `roster-only`, `roster-and-manual`, `manual-only` — controlled by DM settings. The mode flows settings-store → session config payload → REST endpoint → companion. All three cases must be tested.
+19. **Idle screen placement:** Add idle/standby overlays via `app.stage.addChildAt(container, 0)` BEFORE LayerStack initializes. Never add idle content as a LayerStack layer — it has a fixed set of named layers with specific roles.
+20. **Auto-snapshot on TAKE:** Place snapshot side effects in `TransportBar`'s TAKE button `onClick` handler, not inside Zustand store actions. Store actions must stay pure (no side effects).
 
 ---
 
