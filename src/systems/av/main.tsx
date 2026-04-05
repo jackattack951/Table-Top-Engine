@@ -26,6 +26,7 @@ import { PingTool } from './ping-tool'
 import { FXLoopPlayer } from './fx-loop-player'
 import { PreviewCapture } from './preview-capture'
 import { QROverlay } from './qr-overlay'
+import { IdleScreen } from './idle-screen'
 import { MoodEngine } from '@systems/audio/mood-engine'
 import { SFXSoundboard } from '@systems/audio/sfx-soundboard'
 import { getEnvironmentAudioConfig } from '@systems/audio/audio-config'
@@ -124,6 +125,13 @@ async function boot(): Promise<void> {
         statusText.text = msg
         setTimeout(() => { statusText.text = '' }, 3000)
     }
+
+    // ── Idle screen (Sprint 22c) — below all LayerStack layers (Pitfall #19) ──
+    // addChildAt(container, 0) inside IdleScreen constructor; show immediately
+    // so the AV output is never a black frame on startup.
+
+    const idleScreen = new IdleScreen(app)
+    void idleScreen.show(null, null)
 
     // ── QR Overlay (Phase 6 — both roles) ──────────────────────────────────
 
@@ -352,9 +360,17 @@ async function boot(): Promise<void> {
     })
 
     socket.on(EVENTS.STATE_SYNC, (data: unknown) => {
-        const state = data as { activeSceneId?: string | null }
+        const state = data as {
+            activeSceneId?: string | null
+            sessionCode?: string
+            companionUrl?: string
+        }
         if (state.activeSceneId) {
+            idleScreen.hide()
             void handleSceneLoad(state.activeSceneId)
+        } else {
+            // No active scene — show idle with any session info from sync payload
+            void idleScreen.show(state.sessionCode ?? null, state.companionUrl ?? null)
         }
     })
 
@@ -364,6 +380,7 @@ async function boot(): Promise<void> {
             backgroundPath?: string
             gameboardPath?: string
         }
+        idleScreen.hide()
         void handleSceneLoad(sceneId, backgroundPath, gameboardPath)
     })
 
@@ -581,16 +598,26 @@ async function boot(): Promise<void> {
 
     // QR overlay (Phase 6 — both roles, all AV windows)
     socket.on(EVENTS.SESSION_QR_OVERLAY, (data: unknown) => {
-        const { show, qrDataUrl, sessionCode } = data as {
+        const { show, qrDataUrl, sessionCode, companionUrl } = data as {
             show: boolean
             qrDataUrl?: string
             sessionCode?: string
+            companionUrl?: string
         }
         if (show && qrDataUrl && sessionCode) {
             void qrOverlay.show(qrDataUrl, sessionCode)
         } else {
             qrOverlay.hide()
         }
+        // Update idle screen QR when session info arrives
+        if (show && (sessionCode || companionUrl)) {
+            void idleScreen.show(sessionCode ?? null, companionUrl ?? null)
+        }
+    })
+
+    // SESSION_ENDED — no active scene, re-show idle screen
+    socket.on(EVENTS.SESSION_ENDED, () => {
+        void idleScreen.show(null, null)
     })
 
     // ── Real-time preview capture (Sprint 7b) ───────────────────────────────

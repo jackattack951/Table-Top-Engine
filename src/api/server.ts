@@ -1098,6 +1098,11 @@ export function createServer(
                         sessionCode: sessionState.sessionCode,
                     }
                 }
+                // Sprint 22c: include session info for AV Display idle screen
+                if (sessionState && room === 'av-display') {
+                    syncPayload['sessionCode'] = sessionState.sessionCode
+                    syncPayload['companionUrl'] = `${getLANInfo(config.serverPort).url}/companion`
+                }
                 socket.emit(EVENTS.STATE_SYNC, syncPayload)
             }
         })
@@ -1137,6 +1142,13 @@ export function createServer(
                         players: [],
                         phase: 'lobby',
                         sessionCode: sessionState.sessionCode,
+                    })
+                    // Notify AV Display idle screen of session QR (Sprint 22c)
+                    const companionUrl = `${getLANInfo(config.serverPort).url}/companion`
+                    io.to('av-display').emit(EVENTS.SESSION_QR_OVERLAY, {
+                        show: true,
+                        sessionCode: sessionState.sessionCode,
+                        companionUrl,
                     })
 
                     // Phase 7: Auto-load starting scene if campaign has one
