@@ -3,7 +3,7 @@
 > Single source of truth for all sprint work. Updated after every sprint completion.
 > For backlog items not yet in active development, see `Backlog.md`.
 
-**Current test count: 836 tests passing across 47 test files.**
+**Current test count: 879 tests passing across 50 test files.**
 
 ---
 
@@ -63,6 +63,44 @@
 | 18f | Transport Bar | COMPLETE | 819 |
 | 19 | PDF Import + Parser Enhancement | COMPLETE | 836 |
 | 20 | Scene Save + Summary + Plan/Play Mode | PLANNED | — |
+| 21a | Player → DM Messaging + Bidirectional Whisper | COMPLETE | 867 |
+| 21b | DM Roll Prompt System | COMPLETE | 867 |
+| 21c | Character Select from Campaign DB | COMPLETE | 879 |
+
+---
+
+## Sprint 21 — Player Companion v2: Two-Way Comms (COMPLETE)
+
+**879 tests (43 new across 3 test files)**
+
+**21a — Player → DM Messaging + Bidirectional Whisper:**
+- `PLAYER_SEND_MESSAGE` / `DM_PLAYER_MESSAGE` — player sends message to DM; stored on player state
+- `DM_REPLY_TO_PLAYER` / `PLAYER_DM_REPLY` — DM replies to specific player thread
+- `PLAYER_RAISE_HAND` / `DM_HAND_UPDATE` — hand raise/lower with cockpit notification
+- `PlayerMessage` type with `fromDM` flag; messages persisted in session state
+- `player-card.tsx` updated: message thread + reply input + hand raise indicator
+- Companion dashboard: message thread panel + raise hand button
+- **867 tests**
+
+**21b — DM Roll Prompt System:**
+- 6 new socket events: ROLL_PROMPT_SEND, PLAYER_ROLL_PROMPT, ROLL_RESULT_SUBMIT, DM_ROLL_RESULT, ROLL_PROMPT_CANCEL, ROLL_PROMPT_ACTIVE
+- `RollPrompt` + `RollResult` types in shared/player-types.ts
+- Server: `rollPrompts` on SessionState, countdown clamp, targeting, cancel + cleanup
+- `RollPromptOverlay` (companion): full-screen modal, countdown timer, one-tap roll, auto-dismiss with `useRef` cleanup
+- `RollPromptPanel` (cockpit): die selector, quick labels, countdown, per-player targets, live results with crit/fumble
+- Player store: `rollResults[]` + `activePromptId` (clears results on new prompt)
+- **867 tests**
+
+**21c — Character Select from Campaign DB:**
+- Migration 010: `player_characters` table (campaign-scoped, class/level/maxHp/ac/abilities JSON)
+- DB functions: `getPlayerCharacters`, `createPlayerCharacter`, `deletePlayerCharacter`
+- REST: `GET/POST/DELETE /api/campaigns/:id/characters`, `GET /api/sessions/:code/info`
+- Socket: `SESSION_SET_CHAR_MODE` (validates + echoes), `SESSION_CHAR_MODE` (store update)
+- 3 modes: `manual-only` | `roster-and-manual` | `roster-only`
+- Companion join screen: fetches session info on code entry, roster picker with AbortController for race protection
+- `CharacterRosterPanel` (cockpit): mode selector buttons, roster list with delete, add form
+- CSS fix: replaced undefined tokens (--bg-secondary etc.) with canonical design system tokens
+- **879 tests**
 
 ---
 
