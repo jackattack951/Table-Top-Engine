@@ -119,6 +119,14 @@ export const EVENTS = {
     GB_VIDEO_VOLUME: 'audio:gbVideoVolume',     // { volume: number } 0.0–1.0 — cockpit → server → av-display
     BREATHING_HOLD: 'audio:breathingHold',      // { seconds: number } — cockpit → server → av-display
 
+    // Sprint 21a: Player ↔ DM messaging + raise hand
+    PLAYER_SEND_MESSAGE: 'player:sendMessage',   // Player → Server: { message: string }
+    DM_PLAYER_MESSAGE: 'dm:playerMessage',        // Server → Cockpit: { token, playerName, characterName, id, message, timestamp }
+    PLAYER_RAISE_HAND: 'player:raiseHand',        // Player → Server: { raised: boolean }
+    DM_HAND_UPDATE: 'dm:handUpdate',              // Server → Cockpit: { token, raised: boolean }
+    DM_REPLY_TO_PLAYER: 'dm:replyToPlayer',       // Cockpit → Server: { token, message: string }
+    PLAYER_DM_REPLY: 'player:dmReply',            // Server → Player: PlayerMessage
+
     // Sprint 15g: Items system (cockpit room only)
     ITEM_CREATE: 'item:create',             // { item: Item }
     ITEM_UPDATE: 'item:update',             // { item: Item }

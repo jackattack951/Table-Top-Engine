@@ -22,7 +22,7 @@ import { startLatencyMeasurement, stopLatencyMeasurement } from '../perf-client'
 import { patchScene } from '../../hooks/use-scenes'
 import type { Combatant, Scene, ColorGrade, ParticleType, AppMode, CombatState, Note, Item } from '@core/types'
 import type { DisplayInfo } from '@shared/output-types'
-import type { PlayerCharacter } from '@shared/player-types'
+import type { PlayerCharacter, PlayerMessage } from '@shared/player-types'
 import type { SessionPhase } from '../../stores/player-store'
 
 // Injected by vite.cockpit.config.ts only — undefined in Electron renderer.
@@ -273,6 +273,24 @@ export function initSync(serverUrl: string): void {
         realSocket.on(EVENTS.OUTPUT_DISPLAYS_CHANGED, (data: unknown) => {
             const { displays } = data as { displays: DisplayInfo[] }
             useOutputStore.getState().setDisplays(displays)
+        })
+
+        // ── Sprint 21a: Player messages + raise hand ───────────────────────────
+        realSocket.on(EVENTS.DM_PLAYER_MESSAGE, (data: unknown) => {
+            const { token, id, message, timestamp, fromDM, read } = data as {
+                token: string; id: string; message: string; timestamp: number; fromDM: boolean; read: boolean
+            }
+            const player = usePlayerStore.getState().players[token]
+            if (!player) return
+            const newMsg: PlayerMessage = { id, message, timestamp, fromDM, read }
+            usePlayerStore.getState().patchPlayer(token, {
+                messages: [...player.messages, newMsg],
+            })
+        })
+
+        realSocket.on(EVENTS.DM_HAND_UPDATE, (data: unknown) => {
+            const { token, raised } = data as { token: string; raised: boolean }
+            usePlayerStore.getState().patchPlayer(token, { handRaised: raised })
         })
 
         // ── Sprint 11b: Player/session state from server ────────────────────────

@@ -34,8 +34,10 @@ const makePlayer = (overrides: Partial<PlayerCharacter> = {}): PlayerCharacter =
     inventory: [],
     currency: { gold: 100, silver: 50, copper: 25 },
     whispers: [],
+    messages: [],
     status: 'pending',
     connected: true,
+    handRaised: false,
     ...overrides,
 })
 

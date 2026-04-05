@@ -18,6 +18,8 @@ interface PlayerStoreState {
     setPlayers: (players: PlayerCharacter[]) => void
     setSessionPhase: (phase: SessionPhase) => void
     setSessionCode: (code: string | null) => void
+    /** Patch a single player's fields without a full LOBBY_STATE update. */
+    patchPlayer: (token: string, patch: Partial<PlayerCharacter>) => void
     reset: () => void
 }
 
@@ -37,6 +39,12 @@ export const usePlayerStore = create<PlayerStoreState>()(
 
         setSessionPhase: (sessionPhase) => set({ sessionPhase }),
         setSessionCode: (sessionCode) => set({ sessionCode }),
+
+        patchPlayer: (token, patch) => set((state) => {
+            const player = state.players[token]
+            if (!player) return state
+            return { players: { ...state.players, [token]: { ...player, ...patch } } }
+        }),
 
         reset: () => set({
             players: {},

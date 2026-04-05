@@ -95,8 +95,10 @@ export function registerPlayerHandlers(
             inventory: [],
             currency: { gold: 0, silver: 0, copper: 0 },
             whispers: [],
+            messages: [],
             status: 'pending',
             connected: true,
+            handRaised: false,
         }
 
         // Store player and socket mappings
@@ -356,5 +358,74 @@ export function registerPlayerHandlers(
         if (!sessionState || !data) { console.warn('[player] DM_BROADCAST: no session or data'); return }
         const { type, content } = data as { type: string; content: string }
         io.to('player').emit(EVENTS.PLAYER_BROADCAST, { type, content })
+    })
+
+    // ── Sprint 21a: Player → DM messaging + raise hand ──────────────────────────
+
+    socket.on(EVENTS.PLAYER_SEND_MESSAGE, (data: unknown) => {
+        const sessionState = getSessionState()
+        if (!sessionState || !data) return
+        const { message } = data as { message: string }
+        if (typeof message !== 'string' || !message.trim()) return
+
+        const token = socketToToken.get(socket.id)
+        if (!token) return
+        const player = sessionState.players[token]
+        if (!player) return
+
+        const msg = {
+            id: randomUUID(),
+            message: message.trim(),
+            timestamp: Date.now(),
+            fromDM: false,
+            read: false,
+        }
+        player.messages.push(msg)
+
+        io.to('cockpit').emit(EVENTS.DM_PLAYER_MESSAGE, {
+            token,
+            playerName: player.playerName,
+            characterName: player.characterName,
+            ...msg,
+        })
+    })
+
+    socket.on(EVENTS.PLAYER_RAISE_HAND, (data: unknown) => {
+        const sessionState = getSessionState()
+        if (!sessionState) return
+        const { raised } = (data as { raised: boolean }) ?? { raised: false }
+
+        const token = socketToToken.get(socket.id)
+        if (!token) return
+        const player = sessionState.players[token]
+        if (!player) return
+
+        player.handRaised = Boolean(raised)
+        io.to('cockpit').emit(EVENTS.DM_HAND_UPDATE, { token, raised: player.handRaised })
+    })
+
+    socket.on(EVENTS.DM_REPLY_TO_PLAYER, (data: unknown) => {
+        const sessionState = getSessionState()
+        if (!sessionState || !data) return
+        const { token, message } = data as { token: string; message: string }
+        if (typeof message !== 'string' || !message.trim()) return
+
+        const player = sessionState.players[token]
+        if (!player) return
+
+        const msg = {
+            id: randomUUID(),
+            message: message.trim(),
+            timestamp: Date.now(),
+            fromDM: true,
+            read: false,
+        }
+        player.messages.push(msg)
+
+        const playerSocketId = tokenToSocket.get(token)
+        if (playerSocketId) {
+            io.to(playerSocketId).emit(EVENTS.PLAYER_DM_REPLY, msg)
+        }
+        emitLobbyState(io, sessionState)
     })
 }

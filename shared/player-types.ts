@@ -29,10 +29,12 @@ export interface PlayerCharacter {
     inventory: PlayerItem[]
     currency: { gold: number; silver: number; copper: number }
     whispers: PlayerWhisper[]
+    messages: PlayerMessage[]
 
     // Connection & lobby state
     status: 'pending' | 'approved' | 'kicked' | 'ready' | 'live'
     connected: boolean
+    handRaised: boolean
 }
 
 export interface PlayerItem {
@@ -49,11 +51,26 @@ export interface PlayerWhisper {
     read: boolean
 }
 
+/** A message in the two-way player ↔ DM chat thread. */
+export interface PlayerMessage {
+    id: string
+    message: string
+    timestamp: number
+    /** true = sent by the DM, false = sent by the player */
+    fromDM: boolean
+    read: boolean
+}
+
 /** Session state tracked server-side. Separate lifecycle from ServerState. */
 export interface SessionState {
     sessionCode: string
     players: Record<string, PlayerCharacter> // token → player
     phase: 'lobby' | 'ready-check' | 'live' | 'ended'
+}
+
+/** Format a Unix timestamp as a short HH:MM time string. */
+export function formatTime(timestamp: number): string {
+    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
 /** Calculate ability modifier from score: floor((score - 10) / 2) */

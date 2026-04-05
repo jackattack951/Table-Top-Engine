@@ -24,8 +24,10 @@ function makePlayer(overrides: Partial<PlayerCharacter> = {}): PlayerCharacter {
         inventory: [],
         currency: { gold: 50, silver: 25, copper: 10 },
         whispers: [],
+        messages: [],
         status: 'pending',
         connected: true,
+        handRaised: false,
         ...overrides,
     }
 }
@@ -84,6 +86,44 @@ describe('PlayerStore — setPlayers', () => {
         usePlayerStore.getState().setPlayers([makePlayer()])
         usePlayerStore.getState().setPlayers([])
         expect(Object.keys(usePlayerStore.getState().players)).toHaveLength(0)
+    })
+})
+
+describe('PlayerStore — patchPlayer (Sprint 21a)', () => {
+    beforeEach(() => {
+        usePlayerStore.getState().reset()
+    })
+
+    it('patches a single player field without affecting others', () => {
+        const player = makePlayer({ token: 'p1', playerName: 'Alice' })
+        usePlayerStore.getState().setPlayers([player])
+
+        usePlayerStore.getState().patchPlayer('p1', { handRaised: true })
+
+        const updated = usePlayerStore.getState().players['p1']
+        expect(updated.handRaised).toBe(true)
+        expect(updated.playerName).toBe('Alice') // unchanged
+    })
+
+    it('appends messages via patchPlayer', () => {
+        const player = makePlayer({ token: 'p1' })
+        usePlayerStore.getState().setPlayers([player])
+
+        const msg = { id: 'msg-1', message: 'Hello', timestamp: 1000, fromDM: false, read: false }
+        usePlayerStore.getState().patchPlayer('p1', { messages: [msg] })
+
+        expect(usePlayerStore.getState().players['p1'].messages).toHaveLength(1)
+        expect(usePlayerStore.getState().players['p1'].messages[0].message).toBe('Hello')
+    })
+
+    it('is a no-op for unknown token', () => {
+        const player = makePlayer({ token: 'p1' })
+        usePlayerStore.getState().setPlayers([player])
+
+        usePlayerStore.getState().patchPlayer('unknown', { handRaised: true })
+
+        // p1 unchanged
+        expect(usePlayerStore.getState().players['p1'].handRaised).toBe(false)
     })
 })
 

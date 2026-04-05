@@ -166,8 +166,10 @@ describe('registerPlayerHandlers — PLAYER_JOIN', () => {
                 inventory: [],
                 currency: { gold: 0, silver: 0, copper: 0 },
                 whispers: [],
+                messages: [],
                 status: 'pending',
                 connected: true,
+                handRaised: false,
             }
         }
 

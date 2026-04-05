@@ -7,11 +7,12 @@
  */
 import { useState, useRef, useEffect } from 'react'
 import { useCompanionStore } from '../stores/companion-store'
-import { formatModifier } from '@shared/player-types'
+import { formatModifier, formatTime } from '@shared/player-types'
 import type { AbilityScore, PlayerWhisper } from '@shared/player-types'
 import { companionEmit } from '../lib/companion-sync'
 import { vibrate } from '../lib/haptics'
 import { EVENTS } from '@shared/socket-events'
+import { MessageThread } from '../components/message-thread'
 
 // ── Dice roller types ─────────────────────────────────────────────────────────
 
@@ -331,9 +332,7 @@ function WhisperInbox({ whispers }: { whispers: PlayerWhisper[] }): JSX.Element 
                                         <span className="dashboard__whisper-message">{w.message}</span>
                                     </div>
                                 )}
-                                <span className="dashboard__whisper-time">
-                                    {new Date(w.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
+                                <span className="dashboard__whisper-time">{formatTime(w.timestamp)}</span>
                             </div>
                         )
                     })}
@@ -397,6 +396,9 @@ export function DashboardScreen(): JSX.Element {
 
                 {/* Whispers */}
                 <WhisperInbox whispers={whispers} />
+
+                {/* Message DM */}
+                <MessageThread />
             </div>
         </div>
     )

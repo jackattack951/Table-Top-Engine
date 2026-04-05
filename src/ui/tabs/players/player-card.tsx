@@ -6,8 +6,8 @@
  * Sprint 14: DM Controls.
  */
 import React, { useState, useMemo, useRef, useCallback } from 'react'
-import type { PlayerCharacter } from '@shared/player-types'
-import { formatModifier } from '@shared/player-types'
+import type { PlayerCharacter, PlayerMessage } from '@shared/player-types'
+import { formatModifier, formatTime } from '@shared/player-types'
 import { getHPPercent, PLAYER_CONDITIONS } from '../../lib/combat-utils'
 import {
     emitAdjustHP,
@@ -19,6 +19,7 @@ import {
     emitWhisper,
     emitLobbyApprove,
     emitLobbyKick,
+    emitReplyToPlayer,
 } from '../../lib/sync'
 
 interface PlayerCardProps {
@@ -267,6 +268,53 @@ function WhisperControl({ player, onFly }: { player: PlayerCharacter, onFly: (ty
     )
 }
 
+// ── DM Message Thread (reply panel) ────────────────────────────────────────
+
+function DmMessageThread({ player }: { player: PlayerCharacter }): React.JSX.Element {
+    const [reply, setReply] = useState('')
+    const { messages } = player
+
+    const sendReply = () => {
+        const text = reply.trim()
+        if (!text) return
+        emitReplyToPlayer(player.token, text)
+        setReply('')
+    }
+
+    return (
+        <div className="player-card__message-thread">
+            <div className="player-card__message-list">
+                {messages.length === 0 ? (
+                    <span className="player-card__message-empty">No messages yet</span>
+                ) : (
+                    messages.map((msg) => (
+                        <div
+                            key={msg.id}
+                            className={`player-card__message${msg.fromDM ? ' player-card__message--dm' : ' player-card__message--player'}`}
+                        >
+                            <span className="player-card__message-label">{msg.fromDM ? 'DM' : player.characterName}</span>
+                            <span className="player-card__message-text">{msg.message}</span>
+                            <span className="player-card__message-time">{formatTime(msg.timestamp)}</span>
+                        </div>
+                    ))
+                )}
+            </div>
+            <div className="player-card__message-reply">
+                <input
+                    className="form-input"
+                    placeholder={`Reply to ${player.characterName}…`}
+                    value={reply}
+                    onChange={(e) => setReply(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && sendReply()}
+                />
+                <button className="btn btn-primary" onClick={sendReply} disabled={!reply.trim()}>
+                    Reply
+                </button>
+            </div>
+        </div>
+    )
+}
+
 // ── Main Card ───────────────────────────────────────────────────────────────
 
 export function PlayerCard({ player }: PlayerCardProps): React.JSX.Element {
@@ -287,6 +335,8 @@ export function PlayerCard({ player }: PlayerCardProps): React.JSX.Element {
         }, 800)
     }, [])
 
+    const unreadMessages = player.messages.filter((m) => !m.fromDM && !m.read).length
+
     return (
         <div className={`player-card${!player.connected ? ' player-card--disconnected' : ''}`}>
             {flyEvents.length > 0 && (
@@ -303,11 +353,19 @@ export function PlayerCard({ player }: PlayerCardProps): React.JSX.Element {
                 <div className="player-card__identity">
                     <span className={`player-card__status-dot${player.connected ? ' player-card__status-dot--online' : ''}`} />
                     <span className="player-card__character">{player.characterName}</span>
+                    {player.handRaised && (
+                        <span className="player-card__hand-raised" title="Hand raised" aria-label="Hand raised">✋</span>
+                    )}
                     <span className="player-card__meta">
                         {player.class} {player.level} &middot; {player.playerName}
                     </span>
                 </div>
                 <div className="player-card__quick-stats">
+                    {unreadMessages > 0 && (
+                        <span className="player-card__msg-badge" title={`${unreadMessages} unread message${unreadMessages > 1 ? 's' : ''}`}>
+                            {unreadMessages}
+                        </span>
+                    )}
                     <span className="player-card__ac">AC {player.ac}</span>
                     <span className="player-card__expand">{expanded ? '\u25B2' : '\u25BC'}</span>
                 </div>
@@ -401,6 +459,19 @@ export function PlayerCard({ player }: PlayerCardProps): React.JSX.Element {
                     {/* Whisper */}
                     <div className="player-card__section">
                         <WhisperControl player={player} onFly={handleFly} />
+                    </div>
+
+                    {/* Message Thread */}
+                    <div className="player-card__section">
+                        <span className="player-card__section-label">
+                            Messages
+                            {unreadMessages > 0 && (
+                                <span className="player-card__msg-badge player-card__msg-badge--inline">
+                                    {unreadMessages} new
+                                </span>
+                            )}
+                        </span>
+                        <DmMessageThread player={player} />
                     </div>
                 </div>
             )}

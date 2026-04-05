@@ -72,7 +72,7 @@ class WsStub {
                     { id: 'i1', name: 'Wand of Fireballs', quantity: 1, description: '7 charges' },
                 ],
                 currency: { gold: 120, silver: 45, copper: 10 },
-                whispers: [], status: 'live' as const, connected: true,
+                whispers: [], messages: [], status: 'live' as const, connected: true, handRaised: false,
             },
             {
                 token: 'stub-tok-2', socketId: 'stub-s2',
@@ -84,7 +84,7 @@ class WsStub {
                     { id: 'i3', name: 'Healing Potion', quantity: 3, description: 'Heals 2d4+2 HP' },
                 ],
                 currency: { gold: 85, silver: 30, copper: 5 },
-                whispers: [], status: 'live' as const, connected: true,
+                whispers: [], messages: [], status: 'live' as const, connected: true, handRaised: false,
             },
         ]
 

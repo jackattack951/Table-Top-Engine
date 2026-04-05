@@ -1245,3 +1245,116 @@ body {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ─── Sprint 21a: Message Thread (companion) ───────────────────────────────── */
+.message-thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.message-thread__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.message-thread__raise-hand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.message-thread__raise-hand--active {
+  background: var(--color-warning);
+  border-color: var(--color-warning);
+  color: #000;
+}
+
+.message-thread__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-height: 240px;
+  overflow-y: auto;
+  padding: var(--space-2);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.message-thread__empty {
+  font-size: var(--text-sm);
+  color: var(--color-text-3);
+  text-align: center;
+  padding: var(--space-3) 0;
+}
+
+.message-thread__bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  max-width: 85%;
+  animation: messageAppear 0.15s ease;
+}
+
+.message-thread__bubble--player {
+  align-self: flex-end;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.message-thread__bubble--dm {
+  align-self: flex-start;
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+
+.message-thread__bubble-label {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.message-thread__bubble-text {
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+.message-thread__bubble-time {
+  font-size: 10px;
+  opacity: 0.6;
+  align-self: flex-end;
+}
+
+.message-thread__input-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.message-thread__input {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-thread__send {
+  flex-shrink: 0;
+}
+
+@keyframes messageAppear {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

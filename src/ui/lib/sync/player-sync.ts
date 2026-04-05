@@ -77,3 +77,10 @@ export function emitBroadcast(type: string, content: string): void {
 export function emitQROverlay(show: boolean, qrDataUrl?: string, sessionCode?: string): void {
     safeEmit(EVENTS.SESSION_QR_OVERLAY, { show, qrDataUrl, sessionCode })
 }
+
+// ── Sprint 21a: DM reply + hand acknowledgment ────────────────────────────────
+
+/** DM replies directly to a specific player's message thread. */
+export function emitReplyToPlayer(token: string, message: string): void {
+    getSocket()?.emit(EVENTS.DM_REPLY_TO_PLAYER, { token, message })
+}

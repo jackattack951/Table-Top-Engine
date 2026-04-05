@@ -33,4 +33,5 @@ export {
     emitAdjustHP, emitAddCondition, emitRemoveCondition,
     emitSendItem, emitRemoveItem, emitUpdateCurrency,
     emitWhisper, emitBroadcast, emitQROverlay,
+    emitReplyToPlayer,
 } from './player-sync'
