@@ -3,7 +3,7 @@
 > Single source of truth for all sprint work. Updated after every sprint completion.
 > For backlog items not yet in active development, see `Backlog.md`.
 
-**Current test count: 879 tests passing across 50 test files.**
+**Current test count: 954 tests passing across 56 test files.**
 
 ---
 
@@ -67,8 +67,8 @@
 | 21b | DM Roll Prompt System | COMPLETE | 867 |
 | 21c | Character Select from Campaign DB | COMPLETE | 879 |
 | 22a | Scene Summary + Save Indicator + Plan/Play Mode | COMPLETE | 879 |
-| 22b | Named Saves + Undo on Load | PLANNED | — |
-| 22c | AV Output Idle Screen | PLANNED | — |
+| 22b | Named Saves + Undo on Load | MOVED TO BACKLOG | — |
+| 22c | AV Output Idle Screen | COMPLETE | 954 |
 | 23a | Settings Page + Audio Device Selection | COMPLETE | 941 |
 | 23b | Display Assignment + Volume Persistence | COMPLETE | 941 |
 | 23c | Theme Toggle + Export/Import Prefs | COMPLETE | 941 |
@@ -684,14 +684,25 @@ session-code-entry
 
 ---
 
-## Sprint 22 — Scene Save + Output Idle Screen (PLANNED)
+## Sprint 22 — Scene Save + Output Idle Screen (COMPLETE — 954 tests, 56 test files)
 
 **Why:** Sprint 20 was superseded by this sprint, which incorporates the full Sprint 20 spec (scene summary, save indicator, plan/play mode — see `planning/Overhaul/Scene Save/scene-save-spec.md`) and adds named saves, undo on scene load, and a polished AV idle screen. Together these make scene prep feel deliberate and the AV output feel finished at all times — even when no scene is loaded.
 
+**Completed:** 2026-04-05
+
+**What was built:**
+- Scene summary component (read-only grid: Media, Atmosphere, Fog, NPCs, Items, Notes) in SceneCard
+- Save indicator (`lastSavedAt` in scene store, "Saved" badge with fade animation)
+- Plan/Play mode distinction (`.plan-only` CSS gating, soft-disable editing in Play)
+- `IdleScreen` class (`src/systems/av/idle-screen.ts`) — PixiJS container at `app.stage` index 0 (below all LayerStack layers), pulsing glow ring animation (sinusoidal RAF), logo + QR code + session code
+- Server emits `SESSION_QR_OVERLAY` to `av-display` on session start and on AV Display late-join
+- AV Display `main.tsx` shows idle on startup, hides on `SCENE_LOAD`/`STATE_SYNC`, re-shows on `SESSION_ENDED`
+- Phase 22b (Named Saves + Undo on Load) moved to backlog — descoped from this sprint
+
 **Scope (3 phases):**
-- [ ] **Phase 22a — Scene Summary + Save Indicator + Plan/Play Mode:** Full implementation of the Sprint 20 spec. Summary component in SceneCard, save indicator, Plan/Play editing gating.
-- [ ] **Phase 22b — Named Saves + Undo on Load:** Snapshot table, DM can save/name/restore scene snapshots, auto-undo point created before every TAKE.
-- [ ] **Phase 22c — AV Output Idle Screen:** PixiJS idle screen (logo glow + QR code + session code) shown on AV Display when no scene is loaded.
+- [x] **Phase 22a — Scene Summary + Save Indicator + Plan/Play Mode:** Full implementation of the Sprint 20 spec. Summary component in SceneCard, save indicator, Plan/Play editing gating.
+- [ ] **Phase 22b — Named Saves + Undo on Load:** MOVED TO BACKLOG. Snapshot table, DM can save/name/restore scene snapshots, auto-undo point created before every TAKE.
+- [x] **Phase 22c — AV Output Idle Screen:** PixiJS idle screen (logo glow + QR code + session code) shown on AV Display when no scene is loaded.
 
 ---
 
