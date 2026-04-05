@@ -12,6 +12,8 @@
 import React from 'react'
 import { useSettingsStore } from '../stores/settings-store'
 import { DeviceSelector } from './settings/device-selector'
+import { DisplayAssignmentPanel } from './settings/display-assignment-panel'
+import { CompanionSettingsPanel } from './settings/companion-settings-panel'
 
 // ── Volume row ───────────────────────────────────────────────────────────────
 
@@ -81,16 +83,12 @@ export function SettingsTab(): React.JSX.Element {
 
             <section className="settings-section">
                 <h2 className="settings-section__title">Display</h2>
-                <p className="settings-section__desc settings-section__desc--muted">
-                    Display assignment coming in Phase 23b.
-                </p>
+                <DisplayAssignmentPanel />
             </section>
 
             <section className="settings-section">
                 <h2 className="settings-section__title">Companion</h2>
-                <p className="settings-section__desc settings-section__desc--muted">
-                    Lobby configuration coming in Phase 23b.
-                </p>
+                <CompanionSettingsPanel />
             </section>
 
             <section className="settings-section">

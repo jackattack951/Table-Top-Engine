@@ -9,6 +9,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { CharacterSelectMode } from '@shared/player-types'
+import { VALID_CHARACTER_SELECT_MODES } from '@shared/player-types'
 
 // ── State shape ──────────────────────────────────────────────────────────────
 
@@ -57,9 +58,6 @@ export interface SettingsExport {
     density: 'comfortable' | 'compact'
     settings: SettingsState
 }
-
-const VALID_CHARACTER_SELECT_MODES: readonly CharacterSelectMode[] =
-    ['manual-only', 'roster-and-manual', 'roster-only'] as const
 
 /** Returns the parsed export on success, null on any invalid shape. Never throws. */
 export function validateSettingsExport(data: unknown): SettingsExport | null {

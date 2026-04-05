@@ -6,8 +6,8 @@
 import { randomUUID } from 'crypto'
 import type { Server, Socket } from 'socket.io'
 import { EVENTS } from '../../shared/socket-events'
-import type { SessionState, PlayerCharacter } from '../../shared/player-types'
-import { MAX_PLAYERS } from '../../shared/player-types'
+import type { SessionState, PlayerCharacter, CharacterSelectMode } from '../../shared/player-types'
+import { MAX_PLAYERS, VALID_CHARACTER_SELECT_MODES } from '../../shared/player-types'
 
 /** Payload sent by the companion join form. */
 interface JoinPayload {
@@ -64,8 +64,9 @@ export function registerPlayerHandlers(
             return
         }
 
-        // Enforce max player limit
-        if (Object.keys(sessionState.players).length >= MAX_PLAYERS) {
+        // Enforce max player limit (respects DM-configured cap from settings)
+        const cap = sessionState.maxPlayers ?? MAX_PLAYERS
+        if (Object.keys(sessionState.players).length >= cap) {
             socket.emit(EVENTS.PLAYER_JOIN_REJECTED, { reason: 'Session is full' })
             return
         }
@@ -181,12 +182,22 @@ export function registerPlayerHandlers(
 
     // ── Session lifecycle ───────────────────────────────────────────────────────
 
-    socket.on(EVENTS.SESSION_GO_LIVE, () => {
+    socket.on(EVENTS.SESSION_GO_LIVE, (data: unknown) => {
         const sessionState = getSessionState()
         if (!sessionState) return
 
+        // Apply lobby config from DM settings if provided
+        if (data && typeof data === 'object') {
+            const config = data as Record<string, unknown>
+            if (VALID_CHARACTER_SELECT_MODES.includes(config['characterSelectMode'] as CharacterSelectMode)) {
+                sessionState.characterSelectMode = config['characterSelectMode'] as CharacterSelectMode
+            }
+            if (typeof config['maxPlayers'] === 'number' && config['maxPlayers'] >= 1 && config['maxPlayers'] <= MAX_PLAYERS) {
+                sessionState.maxPlayers = config['maxPlayers'] as number
+            }
+        }
+
         sessionState.phase = 'live'
-        // Set all approved/ready players to 'live'
         for (const player of Object.values(sessionState.players)) {
             if (player.status === 'approved' || player.status === 'ready') {
                 player.status = 'live'

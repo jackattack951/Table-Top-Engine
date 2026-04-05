@@ -6,6 +6,7 @@ import { Server } from 'socket.io'
 import { EVENTS } from '../../shared/socket-events'
 import type { DisplayInfo } from '../../shared/output-types'
 import type { SessionState, CharacterSelectMode } from '../../shared/player-types'
+import { MAX_PLAYERS } from '../../shared/player-types'
 import type { AppConfig, Note, NoteType, Item } from '../core/types'
 import { ITEM_RARITIES, ITEM_CATEGORIES, ITEM_STATUSES } from '../core/types'
 import type { DBInterface } from '../core/db/db'
@@ -1130,6 +1131,7 @@ export function createServer(
                         phase: 'lobby',
                         rollPrompts: {},
                         characterSelectMode: 'manual-only',
+                        maxPlayers: MAX_PLAYERS,
                     }
                     io.to('cockpit').emit(EVENTS.LOBBY_STATE, {
                         players: [],

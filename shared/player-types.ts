@@ -64,6 +64,10 @@ export interface PlayerMessage {
 /** Controls how players select their character when joining. */
 export type CharacterSelectMode = 'manual-only' | 'roster-and-manual' | 'roster-only'
 
+/** All valid CharacterSelectMode values — use for validation on both client and server. */
+export const VALID_CHARACTER_SELECT_MODES: readonly CharacterSelectMode[] =
+    ['manual-only', 'roster-and-manual', 'roster-only'] as const
+
 /** A pre-defined character in the campaign roster (shared type — companion + cockpit). */
 export interface RosterCharacter {
     id: string
@@ -84,6 +88,8 @@ export interface SessionState {
     rollPrompts: Record<string, RollPrompt & { tokens: string[] }>
     /** Controls how players select their character when joining. */
     characterSelectMode: CharacterSelectMode
+    /** Maximum concurrent players allowed (from lobby config). */
+    maxPlayers: number
 }
 
 /** A pending roll request sent from the DM to one or more players. */

@@ -10401,3 +10401,117 @@ body {
   font-size: var(--text-lg);
   min-width: 40px;
 }
+
+/* ─── Display Assignment Panel ──────────────────────────────────────────────── */
+
+.display-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.display-panel__empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.display-panel__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.display-panel__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.display-panel__name {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.display-panel__meta {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+}
+
+.display-panel__role-select {
+  width: 180px;
+}
+
+.display-panel__popouts {
+  display: flex;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+/* ─── Companion Settings Panel ──────────────────────────────────────────────── */
+
+.companion-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.settings-row--top {
+  align-items: flex-start;
+}
+
+.settings-row__control--column {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.companion-settings__mode-option {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: var(--space-2);
+  row-gap: 2px;
+  cursor: pointer;
+}
+
+.companion-settings__mode-label {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  font-weight: 500;
+  grid-column: 2;
+}
+
+.companion-settings__mode-desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  grid-column: 2;
+}
+
+.companion-settings__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.companion-settings__num {
+  width: 72px;
+}
+
+.settings-row__unit {
+  font-size: var(--text-sm);
+  color: var(--color-text-3);
+  white-space: nowrap;
+}
+
+/* AV toolbar settings link — extends .btn .btn-ghost */
+.av-toolbar__settings-link {
+  font-size: var(--text-xs);
+  margin-left: auto;
+}

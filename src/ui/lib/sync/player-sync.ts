@@ -5,6 +5,7 @@ import { EVENTS } from '@shared/socket-events'
 import type { CharacterSelectMode } from '@shared/player-types'
 import { getSocket, safeEmit } from './connection'
 import { usePlayerStore } from '../../stores/player-store'
+import { useSettingsStore } from '../../stores/settings-store'
 
 // ── Player Lobby helpers (Sprint 11d) ─────────────────────────────────────────
 
@@ -23,9 +24,10 @@ export function emitReadyCheck(): void {
     getSocket()?.emit(EVENTS.LOBBY_READY_CHECK)
 }
 
-/** DM starts the session. All ready players transition to dashboard. */
+/** DM starts the session. Sends lobby config so server applies saved characterSelectMode and maxPlayers. */
 export function emitGoLive(): void {
-    getSocket()?.emit(EVENTS.SESSION_GO_LIVE)
+    const { characterSelectMode, maxPlayers } = useSettingsStore.getState()
+    getSocket()?.emit(EVENTS.SESSION_GO_LIVE, { characterSelectMode, maxPlayers })
 }
 
 /** DM ends the session. All players see the ended screen. */

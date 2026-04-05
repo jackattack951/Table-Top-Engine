@@ -112,7 +112,7 @@ export default function App(): React.JSX.Element {
             case 'notes': return <NotesTab />
             case 'media': return <MediaTab />
             case 'players': return <PlayersTab />
-            case 'av': return <AVTab />
+            case 'av': return <AVTab onNavigateToSettings={() => setActiveTab('settings')} />
             case 'settings': return <SettingsTab />
         }
     }

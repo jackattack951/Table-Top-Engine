@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { useOutputStore } from '../../stores/output-store'
-import { emitOutputEnable, emitOutputDisable, fetchDisplays } from '../../lib/sync'
-import type { DisplayInfo, OutputRole } from '../../stores/output-store'
+import { fetchDisplays } from '../../lib/sync'
+import { useDisplayAssignment } from './use-display-assignment'
+import type { DisplayInfo } from '../../stores/output-store'
 
-/**
- * Compact AV output toolbar — replaces the old GlobalSettingsZone + preview zones.
- * Horizontal bar: display assignments, pop-out toggles, and live status indicators.
- */
-export function AVToolbar(): React.JSX.Element {
-    const { availableDisplays, outputs, setDisplays, enableOutput, disableOutput } = useOutputStore()
+interface AVToolbarProps {
+    onNavigateToSettings?: () => void
+}
+
+export function AVToolbar({ onNavigateToSettings }: AVToolbarProps): React.JSX.Element {
+    const { availableDisplays, setDisplays } = useOutputStore()
+    const { outputs, getRoleForDisplay, handleRoleChange, togglePopOut, isWindowed } = useDisplayAssignment()
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
@@ -22,56 +24,6 @@ export function AVToolbar(): React.JSX.Element {
         })
         return () => { cancelled = true }
     }, [setDisplays])
-
-    function getRoleForDisplay(displayId: number): OutputRole | null {
-        if (outputs.BG?.displayId === displayId) return 'BG'
-        if (outputs.GB?.displayId === displayId) return 'GB'
-        return null
-    }
-
-    function handleRoleChange(displayId: number, newRole: string): void {
-        const currentRole = getRoleForDisplay(displayId)
-        if (newRole === 'disabled') {
-            if (currentRole) {
-                disableOutput(currentRole)
-                emitOutputDisable(currentRole)
-            }
-            return
-        }
-        const role = newRole as OutputRole
-        if (outputs[role] && outputs[role]!.displayId !== displayId) {
-            disableOutput(role)
-            emitOutputDisable(role)
-        }
-        if (currentRole && currentRole !== role) {
-            disableOutput(currentRole)
-            emitOutputDisable(currentRole)
-        }
-        enableOutput(displayId, role)
-        emitOutputEnable(displayId, role)
-    }
-
-    function handlePopOut(role: OutputRole): void {
-        if (outputs[role]) {
-            disableOutput(role)
-            emitOutputDisable(role)
-        }
-        enableOutput('windowed', role)
-        emitOutputEnable('windowed', role)
-    }
-
-    function togglePopOut(role: OutputRole): void {
-        if (outputs[role]?.displayId === 'windowed') {
-            disableOutput(role)
-            emitOutputDisable(role)
-        } else {
-            handlePopOut(role)
-        }
-    }
-
-    function isWindowed(role: OutputRole): boolean {
-        return outputs[role]?.displayId === 'windowed'
-    }
 
     const externalDisplays = availableDisplays.filter((d: DisplayInfo) => !d.internal)
     const bgActive = outputs.BG !== null
@@ -131,6 +83,16 @@ export function AVToolbar(): React.JSX.Element {
                     {isWindowed('GB') ? 'Close GB' : 'Pop GB'}
                 </button>
             </div>
+
+            {onNavigateToSettings && (
+                <button
+                    className="btn btn-ghost av-toolbar__settings-link"
+                    onClick={onNavigateToSettings}
+                    type="button"
+                >
+                    Configure in Settings →
+                </button>
+            )}
         </div>
     )
 }

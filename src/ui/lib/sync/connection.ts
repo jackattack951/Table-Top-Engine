@@ -17,6 +17,7 @@ import { useAppStore } from '../../stores/app-store'
 import { useOutputStore } from '../../stores/output-store'
 import { usePlayerStore } from '../../stores/player-store'
 import { useItemsStore } from '../../stores/items-store'
+import { useSettingsStore } from '../../stores/settings-store'
 import { wsStub } from '../ws-stub'
 import { startLatencyMeasurement, stopLatencyMeasurement } from '../perf-client'
 import { patchScene } from '../../hooks/use-scenes'
@@ -169,6 +170,16 @@ export function initSync(serverUrl: string): void {
             if (currentMode !== null) {
                 realSocket.emit(EVENTS.APP_MODE_CHANGE, { mode: currentMode })
             }
+
+            // Apply saved volume defaults from settings-store on session connect.
+            // Initializes server-side volume state so AV Display starts at saved levels.
+            const settings = useSettingsStore.getState()
+            realSocket.emit(EVENTS.MASTER_VOLUME, { volume: settings.masterVolumeDefault })
+            realSocket.emit(EVENTS.MUSIC_VOLUME, { volume: settings.musicVolumeDefault })
+            realSocket.emit(EVENTS.SFX_VOLUME, { volume: settings.sfxVolumeDefault })
+            realSocket.emit(EVENTS.BG_VIDEO_VOLUME, { volume: settings.bgVideoVolumeDefault })
+            realSocket.emit(EVENTS.GB_VIDEO_VOLUME, { volume: settings.gbVideoVolumeDefault })
+            realSocket.emit(EVENTS.AMBIENCE_VOLUME, { volume: settings.ambienceVolumeDefault })
         })
 
         realSocket.on(EVENTS.DISCONNECT, () => {
