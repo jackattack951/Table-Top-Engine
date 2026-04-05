@@ -48,6 +48,8 @@ let socket: Socket | SocketLike | null = null
 
 // Pending emit queue — events queued while socket is connecting, flushed on CONNECT
 let _pendingEmits: Array<{ event: string; data: unknown }> = []
+// Guard: apply volume defaults only on the first connection per session, not on reconnects.
+let _volumesInitialized = false
 
 /**
  * Emit a socket event safely. If the socket exists but isn't connected yet,
@@ -143,6 +145,7 @@ function persistToScene<T>(toPartial: (value: T) => Partial<Scene>, ms = 2000) {
 
 export function initSync(serverUrl: string): void {
     _serverUrl = serverUrl
+    _volumesInitialized = false
 
     if (IS_BROWSER_DEV) {
         socket = wsStub
@@ -171,15 +174,18 @@ export function initSync(serverUrl: string): void {
                 realSocket.emit(EVENTS.APP_MODE_CHANGE, { mode: currentMode })
             }
 
-            // Apply saved volume defaults from settings-store on session connect.
-            // Initializes server-side volume state so AV Display starts at saved levels.
-            const settings = useSettingsStore.getState()
-            realSocket.emit(EVENTS.MASTER_VOLUME, { volume: settings.masterVolumeDefault })
-            realSocket.emit(EVENTS.MUSIC_VOLUME, { volume: settings.musicVolumeDefault })
-            realSocket.emit(EVENTS.SFX_VOLUME, { volume: settings.sfxVolumeDefault })
-            realSocket.emit(EVENTS.BG_VIDEO_VOLUME, { volume: settings.bgVideoVolumeDefault })
-            realSocket.emit(EVENTS.GB_VIDEO_VOLUME, { volume: settings.gbVideoVolumeDefault })
-            realSocket.emit(EVENTS.AMBIENCE_VOLUME, { volume: settings.ambienceVolumeDefault })
+            // Apply saved volume defaults once per session start (not on reconnects).
+            // Reconnects re-use whatever the DM set during play.
+            if (!_volumesInitialized) {
+                _volumesInitialized = true
+                const settings = useSettingsStore.getState()
+                realSocket.emit(EVENTS.MASTER_VOLUME, { volume: settings.masterVolumeDefault })
+                realSocket.emit(EVENTS.MUSIC_VOLUME, { volume: settings.musicVolumeDefault })
+                realSocket.emit(EVENTS.SFX_VOLUME, { volume: settings.sfxVolumeDefault })
+                realSocket.emit(EVENTS.BG_VIDEO_VOLUME, { volume: settings.bgVideoVolumeDefault })
+                realSocket.emit(EVENTS.GB_VIDEO_VOLUME, { volume: settings.gbVideoVolumeDefault })
+                realSocket.emit(EVENTS.AMBIENCE_VOLUME, { volume: settings.ambienceVolumeDefault })
+            }
         })
 
         realSocket.on(EVENTS.DISCONNECT, () => {

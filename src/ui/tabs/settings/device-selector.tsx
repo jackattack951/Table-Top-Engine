@@ -3,7 +3,7 @@
  * Populates from navigator.mediaDevices.enumerateDevices().
  * Calls AudioDeviceManager.setOutputDevice on change.
  */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { AudioDeviceManager } from '../../../systems/audio/audio-device-manager'
 import { useSettingsStore } from '../../stores/settings-store'
 
@@ -13,24 +13,25 @@ export function DeviceSelector(): React.JSX.Element {
     const [error, setError] = useState<string | null>(null)
     const deviceId = useSettingsStore((s) => s.audioOutputDeviceId)
     const setDeviceId = useSettingsStore((s) => s.setAudioOutputDeviceId)
+    const cancelRef = useRef(false)
 
-    async function loadDevices(signal: { cancelled: boolean }): Promise<void> {
+    async function loadDevices(): Promise<void> {
+        cancelRef.current = false
         setLoading(true)
         setError(null)
         try {
             const found = await AudioDeviceManager.enumerateOutputDevices()
-            if (!signal.cancelled) setDevices(found)
+            if (!cancelRef.current) setDevices(found)
         } catch {
-            if (!signal.cancelled) setError('Could not enumerate audio devices')
+            if (!cancelRef.current) setError('Could not enumerate audio devices')
         } finally {
-            if (!signal.cancelled) setLoading(false)
+            if (!cancelRef.current) setLoading(false)
         }
     }
 
     useEffect(() => {
-        const signal = { cancelled: false }
-        void loadDevices(signal)
-        return () => { signal.cancelled = true }
+        void loadDevices()
+        return () => { cancelRef.current = true }
     }, [])
 
     async function handleChange(e: React.ChangeEvent<HTMLSelectElement>): Promise<void> {
@@ -40,7 +41,7 @@ export function DeviceSelector(): React.JSX.Element {
     }
 
     function handleRefresh(): void {
-        void loadDevices({ cancelled: false })
+        void loadDevices()
     }
 
     return (

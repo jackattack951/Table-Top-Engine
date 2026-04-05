@@ -69,19 +69,41 @@ export function validateSettingsExport(data: unknown): SettingsExport | null {
     const s = d['settings']
     if (!s || typeof s !== 'object') return null
     const settings = s as Record<string, unknown>
-    // Check required numeric/string/boolean fields exist
-    const requiredKeys: Array<keyof SettingsState> = [
-        'audioOutputDeviceId',
+    if (typeof settings['audioOutputDeviceId'] !== 'string') return null
+    const volumeKeys = [
         'masterVolumeDefault', 'musicVolumeDefault', 'sfxVolumeDefault',
         'bgVideoVolumeDefault', 'gbVideoVolumeDefault', 'ambienceVolumeDefault',
-        'characterSelectMode', 'maxPlayers', 'autoApprove',
-        'requireReadyCheck', 'sessionCodeLength',
-    ]
-    for (const key of requiredKeys) {
-        if (!(key in settings)) return null
+    ] as const
+    for (const key of volumeKeys) {
+        const v = settings[key]
+        if (typeof v !== 'number' || v < 0 || v > 1) return null
     }
     if (!VALID_CHARACTER_SELECT_MODES.includes(settings['characterSelectMode'] as CharacterSelectMode)) return null
+    const maxPlayers = settings['maxPlayers']
+    if (typeof maxPlayers !== 'number' || maxPlayers < 1 || maxPlayers > 8) return null
+    if (typeof settings['autoApprove'] !== 'boolean') return null
+    if (typeof settings['requireReadyCheck'] !== 'boolean') return null
+    const sessionCodeLength = settings['sessionCodeLength']
+    if (typeof sessionCodeLength !== 'number' || sessionCodeLength < 4 || sessionCodeLength > 8) return null
     return data as SettingsExport
+}
+
+/** Extracts only the SettingsState fields from the full store (strips action functions). */
+export function pickSettingsState(store: SettingsStore): SettingsState {
+    return {
+        audioOutputDeviceId: store.audioOutputDeviceId,
+        masterVolumeDefault: store.masterVolumeDefault,
+        musicVolumeDefault: store.musicVolumeDefault,
+        sfxVolumeDefault: store.sfxVolumeDefault,
+        bgVideoVolumeDefault: store.bgVideoVolumeDefault,
+        gbVideoVolumeDefault: store.gbVideoVolumeDefault,
+        ambienceVolumeDefault: store.ambienceVolumeDefault,
+        characterSelectMode: store.characterSelectMode,
+        maxPlayers: store.maxPlayers,
+        autoApprove: store.autoApprove,
+        requireReadyCheck: store.requireReadyCheck,
+        sessionCodeLength: store.sessionCodeLength,
+    }
 }
 
 function clamp01(v: number): number {

@@ -1,18 +1,6 @@
-/**
- * SettingsTab — global application settings page.
- *
- * Sections:
- *   Audio       — output device selection
- *   Volumes     — default volume levels applied on session start
- *   Display     — display assignment (Phase 23b)
- *   Companion   — lobby config, character select mode (Phase 23b)
- *   Appearance  — theme + density toggles (Phase 23c)
- *   Data        — export / import preferences (Phase 23c)
- */
 import React, { useEffect, useState } from 'react'
-import { useSettingsStore } from '../stores/settings-store'
-import { validateSettingsExport } from '../stores/settings-store'
-import type { SettingsExport, SettingsState } from '../stores/settings-store'
+import { useSettingsStore, validateSettingsExport, pickSettingsState } from '../stores/settings-store'
+import type { SettingsExport } from '../stores/settings-store'
 import { DeviceSelector } from './settings/device-selector'
 import { DisplayAssignmentPanel } from './settings/display-assignment-panel'
 import { CompanionSettingsPanel } from './settings/companion-settings-panel'
@@ -73,26 +61,11 @@ export function SettingsTab(): React.JSX.Element {
     }, [importStatus])
 
     function handleExport(): void {
-        const s = useSettingsStore.getState()
-        const settings: SettingsState = {
-            audioOutputDeviceId: s.audioOutputDeviceId,
-            masterVolumeDefault: s.masterVolumeDefault,
-            musicVolumeDefault: s.musicVolumeDefault,
-            sfxVolumeDefault: s.sfxVolumeDefault,
-            bgVideoVolumeDefault: s.bgVideoVolumeDefault,
-            gbVideoVolumeDefault: s.gbVideoVolumeDefault,
-            ambienceVolumeDefault: s.ambienceVolumeDefault,
-            characterSelectMode: s.characterSelectMode,
-            maxPlayers: s.maxPlayers,
-            autoApprove: s.autoApprove,
-            requireReadyCheck: s.requireReadyCheck,
-            sessionCodeLength: s.sessionCodeLength,
-        }
         const payload: SettingsExport = {
             version: 1,
             theme: getSavedTheme(),
             density: getSavedDensity(),
-            settings,
+            settings: pickSettingsState(useSettingsStore.getState()),
         }
         downloadFile(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), 'stage-manager-settings.json')
     }

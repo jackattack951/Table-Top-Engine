@@ -15,32 +15,40 @@ export function useDisplayAssignment() {
         return null
     }
 
-    function handleRoleChange(displayId: number, newRole: string): void {
+    function handleRoleChange(displayId: number, newRole: OutputRole | 'disabled'): void {
         const currentRole = getRoleForDisplay(displayId)
         if (newRole === 'disabled') {
-            if (currentRole) { disableOutput(currentRole); emitOutputDisable(currentRole) }
+            if (currentRole) {
+                disableOutput(currentRole)
+                emitOutputDisable(currentRole)
+            }
             return
         }
-        const role = newRole as OutputRole
-        if (outputs[role] && outputs[role]!.displayId !== displayId) {
-            disableOutput(role); emitOutputDisable(role)
+        if (outputs[newRole] && outputs[newRole]!.displayId !== displayId) {
+            disableOutput(newRole)
+            emitOutputDisable(newRole)
         }
-        if (currentRole && currentRole !== role) {
-            disableOutput(currentRole); emitOutputDisable(currentRole)
+        if (currentRole && currentRole !== newRole) {
+            disableOutput(currentRole)
+            emitOutputDisable(currentRole)
         }
-        enableOutput(displayId, role)
-        emitOutputEnable(displayId, role)
+        enableOutput(displayId, newRole)
+        emitOutputEnable(displayId, newRole)
     }
 
     function handlePopOut(role: OutputRole): void {
-        if (outputs[role]) { disableOutput(role); emitOutputDisable(role) }
+        if (outputs[role]) {
+            disableOutput(role)
+            emitOutputDisable(role)
+        }
         enableOutput('windowed', role)
         emitOutputEnable('windowed', role)
     }
 
     function togglePopOut(role: OutputRole): void {
         if (outputs[role]?.displayId === 'windowed') {
-            disableOutput(role); emitOutputDisable(role)
+            disableOutput(role)
+            emitOutputDisable(role)
         } else {
             handlePopOut(role)
         }

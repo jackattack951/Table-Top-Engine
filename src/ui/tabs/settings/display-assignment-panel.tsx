@@ -11,7 +11,7 @@ import type { DisplayInfo } from '../../stores/output-store'
 
 export function DisplayAssignmentPanel(): React.JSX.Element {
     const { availableDisplays, setDisplays } = useOutputStore()
-    const { getRoleForDisplay, handleRoleChange, handlePopOut, isWindowed } = useDisplayAssignment()
+    const { getRoleForDisplay, handleRoleChange, togglePopOut, isWindowed } = useDisplayAssignment()
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
@@ -70,14 +70,14 @@ export function DisplayAssignmentPanel(): React.JSX.Element {
             <div className="display-panel__popouts">
                 <button
                     className={`btn btn-secondary${bgWindowed ? ' active' : ''}`}
-                    onClick={() => handlePopOut('BG')}
+                    onClick={() => togglePopOut('BG')}
                     type="button"
                 >
                     {bgWindowed ? 'Close BG Window' : 'Open BG Window'}
                 </button>
                 <button
                     className={`btn btn-secondary${gbWindowed ? ' active' : ''}`}
-                    onClick={() => handlePopOut('GB')}
+                    onClick={() => togglePopOut('GB')}
                     type="button"
                 >
                     {gbWindowed ? 'Close GB Window' : 'Open GB Window'}
