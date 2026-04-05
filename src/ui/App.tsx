@@ -3,7 +3,6 @@ import './index.css'
 import { TabBar, type TabId } from './components/TabBar'
 import { ModeToggle } from './components/ModeToggle'
 import { ConnectionStatus } from './components/ConnectionStatus'
-import { CampaignSelector } from './components/campaign-selector'
 import { DevTestPanel } from './lib/DevTestPanel'
 import { PerfOverlay } from './components/perf-overlay'
 import { LaunchScreen } from './screens/launch-screen'
@@ -43,7 +42,7 @@ type TransitionPhase = 'intro' | 'launch' | 'fadeOut' | 'black' | 'fadeIn' | 'co
 
 export default function App(): React.JSX.Element {
     const [activeTab, setActiveTab] = useState<TabId>('dashboard')
-    const { hasLaunched, isConnected, activeCampaignId, activeCampaignName, clearActiveCampaign } = useAppStore()
+    const { hasLaunched, isConnected, activeCampaignName } = useAppStore()
     const sessionCode = usePlayerStore((s) => s.sessionCode)
     const sessionPhase = usePlayerStore((s) => s.sessionPhase)
     const [phase, setPhase] = useState<TransitionPhase>('intro')
@@ -137,45 +136,30 @@ export default function App(): React.JSX.Element {
                     </div>
                 </header>
 
-                {activeCampaignId === null ? (
-                    <main className="tab-content" role="main" aria-label="Campaign selection">
-                        <CampaignSelector />
+                <div className="campaign-header">
+                    <span className="campaign-header__name" aria-label="Active campaign">
+                        {activeCampaignName}
+                    </span>
+                </div>
+
+                <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+
+                <div className="cockpit-main">
+                    <main
+                        className="tab-content"
+                        role="tabpanel"
+                        id={`tabpanel-${activeTab}`}
+                        aria-labelledby={`tab-${activeTab}`}
+                    >
+                        <ErrorBoundary key={activeTab}>
+                            {renderTab()}
+                        </ErrorBoundary>
                     </main>
-                ) : (
-                    <>
-                        <div className="campaign-header">
-                            <span className="campaign-header__name" aria-label="Active campaign">
-                                {activeCampaignName}
-                            </span>
-                            <button
-                                className="campaign-header__switch"
-                                onClick={clearActiveCampaign}
-                                aria-label="Switch campaign"
-                            >
-                                Switch
-                            </button>
-                        </div>
 
-                        <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
-
-                        <div className="cockpit-main">
-                            <main
-                                className="tab-content"
-                                role="tabpanel"
-                                id={`tabpanel-${activeTab}`}
-                                aria-labelledby={`tab-${activeTab}`}
-                            >
-                                <ErrorBoundary key={activeTab}>
-                                    {renderTab()}
-                                </ErrorBoundary>
-                            </main>
-
-                            {sessionPhase !== 'inactive' && (
-                                <PlayerSidebar />
-                            )}
-                        </div>
-                    </>
-                )}
+                    {sessionPhase !== 'inactive' && (
+                        <PlayerSidebar />
+                    )}
+                </div>
 
                 <DevTestPanel />
                 <PerfOverlay />
