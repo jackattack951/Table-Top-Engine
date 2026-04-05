@@ -119,6 +119,15 @@ export const EVENTS = {
     GB_VIDEO_VOLUME: 'audio:gbVideoVolume',     // { volume: number } 0.0–1.0 — cockpit → server → av-display
     BREATHING_HOLD: 'audio:breathingHold',      // { seconds: number } — cockpit → server → av-display
 
+    // Sprint 21b: DM Roll Prompt System
+    ROLL_PROMPT_SEND: 'roll:promptSend',          // Cockpit → Server: { tokens[], die, label, countdown }
+    PLAYER_ROLL_PROMPT: 'player:rollPrompt',       // Server → Player: RollPrompt
+    ROLL_RESULT_SUBMIT: 'roll:resultSubmit',       // Player → Server: { promptId, result }
+    DM_ROLL_RESULT: 'dm:rollResult',              // Server → Cockpit: RollResult
+    ROLL_PROMPT_CANCEL: 'roll:promptCancel',       // Cockpit → Server: { promptId }
+    PLAYER_ROLL_PROMPT_CANCEL: 'player:rollPromptCancel', // Server → Player: { promptId }
+    ROLL_PROMPT_ACTIVE: 'roll:promptActive',       // Server → Cockpit: { promptId } — echoes active prompt ID after send
+
     // Sprint 21a: Player ↔ DM messaging + raise hand
     PLAYER_SEND_MESSAGE: 'player:sendMessage',   // Player → Server: { message: string }
     DM_PLAYER_MESSAGE: 'dm:playerMessage',        // Server → Cockpit: { token, playerName, characterName, id, message, timestamp }

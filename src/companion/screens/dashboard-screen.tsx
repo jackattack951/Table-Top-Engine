@@ -13,6 +13,7 @@ import { companionEmit } from '../lib/companion-sync'
 import { vibrate } from '../lib/haptics'
 import { EVENTS } from '@shared/socket-events'
 import { MessageThread } from '../components/message-thread'
+import { RollPromptOverlay } from '../components/roll-prompt-overlay'
 
 // ── Dice roller types ─────────────────────────────────────────────────────────
 
@@ -354,6 +355,9 @@ export function DashboardScreen(): JSX.Element {
 
     return (
         <div className="dashboard">
+            {/* Roll prompt overlay — rendered above dashboard when active */}
+            <RollPromptOverlay />
+
             {/* Header */}
             <div className="dashboard__header">
                 <div className="dashboard__identity">

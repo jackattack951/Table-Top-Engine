@@ -5,7 +5,7 @@
  */
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import type { PlayerCharacter } from '@shared/player-types'
+import type { PlayerCharacter, RollResult } from '@shared/player-types'
 
 export type SessionPhase = 'inactive' | 'lobby' | 'ready-check' | 'live' | 'ended'
 
@@ -15,11 +15,18 @@ interface PlayerStoreState {
     sessionPhase: SessionPhase
     sessionCode: string | null
 
+    /** Roll results received from players. Cleared when a new prompt is sent. */
+    rollResults: RollResult[]
+    /** ID of the currently active roll prompt, or null if none pending. */
+    activePromptId: string | null
+
     setPlayers: (players: PlayerCharacter[]) => void
     setSessionPhase: (phase: SessionPhase) => void
     setSessionCode: (code: string | null) => void
     /** Patch a single player's fields without a full LOBBY_STATE update. */
     patchPlayer: (token: string, patch: Partial<PlayerCharacter>) => void
+    addRollResult: (result: RollResult) => void
+    setActivePromptId: (id: string | null) => void
     reset: () => void
 }
 
@@ -28,6 +35,8 @@ export const usePlayerStore = create<PlayerStoreState>()(
         players: {},
         sessionPhase: 'inactive',
         sessionCode: null,
+        rollResults: [],
+        activePromptId: null,
 
         setPlayers: (players) => {
             const record: Record<string, PlayerCharacter> = {}
@@ -46,10 +55,18 @@ export const usePlayerStore = create<PlayerStoreState>()(
             return { players: { ...state.players, [token]: { ...player, ...patch } } }
         }),
 
+        addRollResult: (result) => set((state) => ({
+            rollResults: [...state.rollResults, result],
+        })),
+
+        setActivePromptId: (id) => set({ activePromptId: id, ...(id ? {} : { rollResults: [] }) }),
+
         reset: () => set({
             players: {},
             sessionPhase: 'inactive',
             sessionCode: null,
+            rollResults: [],
+            activePromptId: null,
         }),
     }))
 )

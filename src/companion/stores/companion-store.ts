@@ -5,7 +5,7 @@
  */
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import type { PlayerCharacter, PlayerItem, PlayerWhisper, PlayerMessage, AbilityScore } from '@shared/player-types'
+import type { PlayerCharacter, PlayerItem, PlayerWhisper, PlayerMessage, RollPrompt, AbilityScore } from '@shared/player-types'
 
 export type CompanionPhase = 'join' | 'lobby' | 'dashboard' | 'ended' | 'expired'
 
@@ -39,6 +39,9 @@ interface CompanionStoreState {
     phase: CompanionPhase
     status: PlayerCharacter['status'] | null
 
+    // Active roll prompt (null when none pending)
+    activeRollPrompt: RollPrompt | null
+
     // UI state
     loading: boolean
     error: string | null
@@ -53,6 +56,7 @@ interface CompanionStoreState {
     setLoading: (loading: boolean) => void
     addMessage: (msg: PlayerMessage) => void
     setHandRaised: (raised: boolean) => void
+    setRollPrompt: (prompt: RollPrompt | null) => void
     reset: () => void
 }
 
@@ -71,6 +75,7 @@ const INITIAL_STATE = {
     whispers: [],
     messages: [],
     handRaised: false,
+    activeRollPrompt: null,
     token: null,
     sessionCode: null,
     connected: false,
@@ -111,6 +116,7 @@ export const useCompanionStore = create<CompanionStoreState>()(
         setLoading: (loading) => set({ loading }),
         addMessage: (msg) => set((state) => ({ messages: [...state.messages, msg] })),
         setHandRaised: (raised) => set({ handRaised: raised }),
+        setRollPrompt: (prompt) => set({ activeRollPrompt: prompt }),
 
         reset: () => set({ ...INITIAL_STATE }),
     }))

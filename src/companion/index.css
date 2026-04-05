@@ -1358,3 +1358,112 @@ body {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ─── Sprint 21b: Roll Prompt Overlay ───────────────────────────────────────── */
+
+.roll-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: rollOverlayIn 0.2s ease;
+}
+
+@keyframes rollOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.roll-prompt-overlay__card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 260px;
+  max-width: 340px;
+  width: 90vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: rollCardIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes rollCardIn {
+  from { transform: scale(0.88) translateY(16px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.roll-prompt-overlay__label {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+}
+
+.roll-prompt-overlay__die {
+  font-size: 56px;
+  font-weight: 800;
+  color: var(--color-accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.roll-prompt-overlay__timer {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--transition-fast);
+}
+
+.roll-prompt-overlay__timer--urgent {
+  color: var(--color-danger);
+  animation: timerPulse 0.5s ease infinite alternate;
+}
+
+@keyframes timerPulse {
+  from { opacity: 1; }
+  to { opacity: 0.6; }
+}
+
+.roll-prompt-overlay__roll-btn {
+  font-size: var(--text-lg);
+  padding: var(--space-3) var(--space-8);
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+
+.roll-prompt-overlay__result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.roll-prompt-overlay__result-value {
+  font-size: 72px;
+  font-weight: 800;
+  color: var(--color-success);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  animation: resultPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes resultPop {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.roll-prompt-overlay__result-label {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+

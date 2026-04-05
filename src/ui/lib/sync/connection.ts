@@ -22,7 +22,7 @@ import { startLatencyMeasurement, stopLatencyMeasurement } from '../perf-client'
 import { patchScene } from '../../hooks/use-scenes'
 import type { Combatant, Scene, ColorGrade, ParticleType, AppMode, CombatState, Note, Item } from '@core/types'
 import type { DisplayInfo } from '@shared/output-types'
-import type { PlayerCharacter, PlayerMessage } from '@shared/player-types'
+import type { PlayerCharacter, PlayerMessage, RollResult } from '@shared/player-types'
 import type { SessionPhase } from '../../stores/player-store'
 
 // Injected by vite.cockpit.config.ts only — undefined in Electron renderer.
@@ -291,6 +291,16 @@ export function initSync(serverUrl: string): void {
         realSocket.on(EVENTS.DM_HAND_UPDATE, (data: unknown) => {
             const { token, raised } = data as { token: string; raised: boolean }
             usePlayerStore.getState().patchPlayer(token, { handRaised: raised })
+        })
+
+        realSocket.on(EVENTS.DM_ROLL_RESULT, (data: unknown) => {
+            const result = data as RollResult
+            usePlayerStore.getState().addRollResult(result)
+        })
+
+        realSocket.on(EVENTS.ROLL_PROMPT_ACTIVE, (data: unknown) => {
+            const { promptId } = data as { promptId: string }
+            usePlayerStore.getState().setActivePromptId(promptId)
         })
 
         // ── Sprint 11b: Player/session state from server ────────────────────────

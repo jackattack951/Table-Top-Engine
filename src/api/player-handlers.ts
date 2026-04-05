@@ -404,6 +404,86 @@ export function registerPlayerHandlers(
         io.to('cockpit').emit(EVENTS.DM_HAND_UPDATE, { token, raised: player.handRaised })
     })
 
+    // ── Sprint 21b: Roll prompt system ──────────────────────────────────────────
+
+    socket.on(EVENTS.ROLL_PROMPT_SEND, (data: unknown) => {
+        const sessionState = getSessionState()
+        if (!sessionState || !data) return
+        const { tokens, die, label, countdown } = data as {
+            tokens: string[]; die: string; label: string; countdown: number
+        }
+        if (!Array.isArray(tokens) || !die || !label) return
+
+        const prompt = {
+            id: randomUUID(),
+            die,
+            label,
+            countdown: typeof countdown === 'number' && countdown >= 0 ? countdown : 0,
+            timestamp: Date.now(),
+            tokens,
+        }
+        sessionState.rollPrompts[prompt.id] = prompt
+
+        for (const token of tokens) {
+            const playerSocketId = tokenToSocket.get(token)
+            if (playerSocketId) {
+                io.to(playerSocketId).emit(EVENTS.PLAYER_ROLL_PROMPT, {
+                    id: prompt.id,
+                    die: prompt.die,
+                    label: prompt.label,
+                    countdown: prompt.countdown,
+                    timestamp: prompt.timestamp,
+                })
+            }
+        }
+
+        // Notify cockpit of the active prompt ID so it can track results
+        io.to('cockpit').emit(EVENTS.ROLL_PROMPT_ACTIVE, { promptId: prompt.id })
+    })
+
+    socket.on(EVENTS.ROLL_RESULT_SUBMIT, (data: unknown) => {
+        const sessionState = getSessionState()
+        if (!sessionState || !data) return
+        const { promptId, result } = data as { promptId: string; result: number }
+        if (typeof result !== 'number' || !Number.isFinite(result)) return
+
+        const token = socketToToken.get(socket.id)
+        if (!token) return
+        const player = sessionState.players[token]
+        if (!player) return
+
+        const prompt = sessionState.rollPrompts[promptId]
+        if (!prompt) return
+
+        io.to('cockpit').emit(EVENTS.DM_ROLL_RESULT, {
+            promptId,
+            token,
+            playerName: player.playerName,
+            characterName: player.characterName,
+            die: prompt.die,
+            label: prompt.label,
+            result,
+            timestamp: Date.now(),
+        })
+    })
+
+    socket.on(EVENTS.ROLL_PROMPT_CANCEL, (data: unknown) => {
+        const sessionState = getSessionState()
+        if (!sessionState || !data) return
+        const { promptId } = data as { promptId: string }
+        const prompt = sessionState.rollPrompts[promptId]
+        if (!prompt) return
+
+        delete sessionState.rollPrompts[promptId]
+
+        for (const token of prompt.tokens) {
+            const playerSocketId = tokenToSocket.get(token)
+            if (playerSocketId) {
+                io.to(playerSocketId).emit(EVENTS.PLAYER_ROLL_PROMPT_CANCEL, { promptId })
+            }
+        }
+    })
+
     socket.on(EVENTS.DM_REPLY_TO_PLAYER, (data: unknown) => {
         const sessionState = getSessionState()
         if (!sessionState || !data) return

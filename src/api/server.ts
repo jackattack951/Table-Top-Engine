@@ -1046,6 +1046,7 @@ export function createServer(
                         sessionCode: generateSessionCode(),
                         players: {},
                         phase: 'lobby',
+                        rollPrompts: {},
                     }
                     io.to('cockpit').emit(EVENTS.LOBBY_STATE, {
                         players: [],

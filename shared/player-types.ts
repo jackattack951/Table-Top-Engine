@@ -66,6 +66,29 @@ export interface SessionState {
     sessionCode: string
     players: Record<string, PlayerCharacter> // token → player
     phase: 'lobby' | 'ready-check' | 'live' | 'ended'
+    /** Active roll prompts, keyed by promptId. */
+    rollPrompts: Record<string, RollPrompt & { tokens: string[] }>
+}
+
+/** A pending roll request sent from the DM to one or more players. */
+export interface RollPrompt {
+    id: string
+    die: string            // e.g. 'd20', 'd8', 'd6'
+    label: string          // e.g. 'Perception Check', 'Initiative'
+    countdown: number      // seconds; 0 = no countdown
+    timestamp: number
+}
+
+/** A roll result submitted by a player. */
+export interface RollResult {
+    promptId: string
+    token: string
+    playerName: string
+    characterName: string
+    die: string
+    label: string
+    result: number
+    timestamp: number
 }
 
 /** Format a Unix timestamp as a short HH:MM time string. */

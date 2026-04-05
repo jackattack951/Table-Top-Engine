@@ -84,3 +84,15 @@ export function emitQROverlay(show: boolean, qrDataUrl?: string, sessionCode?: s
 export function emitReplyToPlayer(token: string, message: string): void {
     getSocket()?.emit(EVENTS.DM_REPLY_TO_PLAYER, { token, message })
 }
+
+// ── Sprint 21b: Roll prompt emitters ──────────────────────────────────────────
+
+/** Send a roll prompt to one or more players. */
+export function emitRollPrompt(tokens: string[], die: string, label: string, countdown: number): void {
+    getSocket()?.emit(EVENTS.ROLL_PROMPT_SEND, { tokens, die, label, countdown })
+}
+
+/** Cancel an active roll prompt by ID. */
+export function emitCancelRollPrompt(promptId: string): void {
+    getSocket()?.emit(EVENTS.ROLL_PROMPT_CANCEL, { promptId })
+}

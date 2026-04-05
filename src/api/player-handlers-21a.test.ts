@@ -77,6 +77,7 @@ describe('Sprint 21a: player messaging and raise hand', () => {
             sessionCode: 'ABC123',
             players: { [TOKEN]: player },
             phase: 'live',
+            rollPrompts: {},
         }
         tokenToSocket = new Map([[TOKEN, SOCKET_ID]])
         socketToToken = new Map([[SOCKET_ID, TOKEN]])
@@ -199,6 +200,7 @@ describe('Sprint 21a: PlayerCharacter has messages and handRaised fields', () =>
             sessionCode: 'XYZ999',
             players: {},
             phase: 'lobby',
+            rollPrompts: {},
         }
         const tokenToSocket = new Map<string, string>()
         const socketToToken = new Map<string, string>()

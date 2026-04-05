@@ -53,6 +53,7 @@ function makeSessionState(overrides: Partial<SessionState> = {}): SessionState {
         sessionCode: 'ABC123',
         players: {},
         phase: 'lobby',
+        rollPrompts: {},
         ...overrides,
     }
 }

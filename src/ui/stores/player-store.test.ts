@@ -157,3 +157,62 @@ describe('PlayerStore — session management', () => {
         expect(usePlayerStore.getState().sessionCode).toBeNull()
     })
 })
+
+describe('PlayerStore — roll prompt tracking (Sprint 21b)', () => {
+    beforeEach(() => {
+        usePlayerStore.getState().reset()
+    })
+
+    it('starts with null activePromptId and empty rollResults', () => {
+        expect(usePlayerStore.getState().activePromptId).toBeNull()
+        expect(usePlayerStore.getState().rollResults).toEqual([])
+    })
+
+    it('setActivePromptId sets the active prompt', () => {
+        usePlayerStore.getState().setActivePromptId('prompt-abc')
+        expect(usePlayerStore.getState().activePromptId).toBe('prompt-abc')
+    })
+
+    it('setActivePromptId(null) clears results along with promptId', () => {
+        const result = {
+            promptId: 'p1', token: 'tok', playerName: 'Bob', characterName: 'Borin',
+            die: 'd20', label: 'Roll', result: 12, timestamp: Date.now(),
+        }
+        usePlayerStore.getState().setActivePromptId('p1')
+        usePlayerStore.getState().addRollResult(result)
+        expect(usePlayerStore.getState().rollResults).toHaveLength(1)
+
+        usePlayerStore.getState().setActivePromptId(null)
+        expect(usePlayerStore.getState().activePromptId).toBeNull()
+        expect(usePlayerStore.getState().rollResults).toHaveLength(0)
+    })
+
+    it('addRollResult appends result without clearing existing', () => {
+        usePlayerStore.getState().setActivePromptId('p1')
+        const base = {
+            promptId: 'p1', token: 'tok', playerName: 'Bob', characterName: 'Borin',
+            die: 'd20', label: 'Roll', timestamp: Date.now(),
+        }
+        usePlayerStore.getState().addRollResult({ ...base, result: 12 })
+        usePlayerStore.getState().addRollResult({ ...base, result: 18 })
+
+        const results = usePlayerStore.getState().rollResults
+        expect(results).toHaveLength(2)
+        expect(results[0].result).toBe(12)
+        expect(results[1].result).toBe(18)
+    })
+
+    it('reset clears rollResults and activePromptId', () => {
+        usePlayerStore.getState().setActivePromptId('p1')
+        const result = {
+            promptId: 'p1', token: 't', playerName: 'X', characterName: 'Y',
+            die: 'd20', label: 'R', result: 10, timestamp: Date.now(),
+        }
+        usePlayerStore.getState().addRollResult(result)
+
+        usePlayerStore.getState().reset()
+
+        expect(usePlayerStore.getState().activePromptId).toBeNull()
+        expect(usePlayerStore.getState().rollResults).toEqual([])
+    })
+})
