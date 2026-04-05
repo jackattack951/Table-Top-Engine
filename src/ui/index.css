@@ -378,6 +378,17 @@ body {
   color: var(--color-text-white);
 }
 
+.mode-toggle__desc {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 400;
+  opacity: 0.65;
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1;
+  margin-top: 2px;
+}
+
 /* ─── Connection Status ──────────────────────────────────────────────────────── */
 .connection-status {
   display: flex;
@@ -2017,6 +2028,26 @@ body {
   font-size: var(--text-sm);
 }
 
+/* Save flash indicator — appears after PATCH succeeds, fades out */
+@keyframes save-flash {
+  0%   { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.scene-card__save-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-success, #4caf50);
+  border: 1px solid currentColor;
+  letter-spacing: 0.04em;
+  animation: save-flash 2.5s ease-out forwards;
+}
+
 .scene-card__section {
   display: flex;
   flex-direction: column;
@@ -2364,6 +2395,68 @@ body {
   10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   80% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+/* ─── Scene Summary (Sprint 22a) ────────────────────────────────────────────── */
+
+.scene-summary {
+  padding: var(--space-3) var(--space-4);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.scene-summary__section {
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.scene-summary__label {
+  color: var(--color-text-muted);
+  font-variant: small-caps;
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.scene-summary__value {
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: baseline;
+}
+
+.scene-summary__badge {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-right: 2px;
+}
+
+.scene-summary__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-1);
+}
+
+.scene-summary__loading {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  padding: var(--space-2);
 }
 
 /* ─── NPC List (NPCs Tab) ────────────────────────────────────────────────────── */

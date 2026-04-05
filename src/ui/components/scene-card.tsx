@@ -6,7 +6,11 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { SceneAdvancer } from './scene-advancer'
 import { MediaPicker } from './media-picker'
+import { SceneSummary } from './scene-summary'
 import { getAssetFileUrl } from '../hooks/use-assets'
+import { useSceneSummary } from '../hooks/use-scene-summary'
+import { useSceneStore } from '../stores/scene-store'
+import { useAppStore } from '../stores/app-store'
 import type { Scene, SceneBranch, Note } from '@core/types'
 import type { MediaAsset } from '@shared/asset-types'
 
@@ -67,6 +71,19 @@ export function SceneCard({
     onDragOver,
     onDrop,
 }: SceneCardProps): React.JSX.Element {
+    const isPlayMode = useAppStore((s) => s.appMode === 'play')
+    const lastSavedAt = useSceneStore((s) => s.lastSavedAt)
+    const [showSaved, setShowSaved] = useState(false)
+    const { summary, loading: summaryLoading } = useSceneSummary(expanded ? scene.id : null)
+
+    // Flash "Saved" badge on active scene when lastSavedAt changes
+    useEffect(() => {
+        if (!isActive || lastSavedAt === null) return
+        setShowSaved(true)
+        const timer = setTimeout(() => setShowSaved(false), 2500)
+        return () => clearTimeout(timer)
+    }, [isActive, lastSavedAt])
+
     const [pickerSlot, setPickerSlot] = useState<'background' | 'gameboard' | null>(null)
     const branchCount = scene.branches.length
     const notesSnippet = scene.notes
@@ -146,9 +163,17 @@ export function SceneCard({
 
     return (
         <div
-            className={`scene-card${isActive ? ' scene-card--active' : ''}${isCued && !isActive ? ' scene-card--cued' : ''}${expanded ? ' scene-card--expanded' : ''}${isClosing ? ' scene-card--closing' : ''}${isDragging ? ' scene-card--dragging' : ''}`}
-            draggable
+            className={[
+                'scene-card',
+                isActive && 'scene-card--active',
+                isCued && !isActive && 'scene-card--cued',
+                expanded && 'scene-card--expanded',
+                isClosing && 'scene-card--closing',
+                isDragging && 'scene-card--dragging',
+            ].filter(Boolean).join(' ')}
+            draggable={!isPlayMode}
             onDragStart={(e) => {
+                if (isPlayMode) return
                 setIsDragging(true)
                 onDragStart(e, scene.id)
             }}
@@ -168,6 +193,7 @@ export function SceneCard({
                 <span className="scene-card__header-badges">
                     {isStartingScene && <span className="scene-card__badge scene-card__badge--starting">{'\u2605'}</span>}
                     {isActive && <span className="scene-card__badge scene-card__badge--live"><span className="live-dot" />LIVE</span>}
+                    {showSaved && <span className="scene-card__save-indicator">Saved</span>}
                     {linkedNotes.length > 0 && (
                         <span className="scene-card__badge">
                             {linkedNotes.length} note{linkedNotes.length !== 1 ? 's' : ''}
@@ -192,6 +218,10 @@ export function SceneCard({
             {expanded && (
                 <div className="scene-card__expand-content">
 
+                    {/* ── Scene Summary ─────────────────────────────────────── */}
+                    {summaryLoading && <p className="scene-summary__loading">Loading summary…</p>}
+                    {summary && <SceneSummary summary={summary} allScenes={allScenes} />}
+
                     {/* Load Scene + Starting Scene row */}
                     <div className="scene-card__action-row">
                         <button
@@ -213,8 +243,8 @@ export function SceneCard({
                         )}
                     </div>
 
-                    {/* ── Media Slots (BG + GB) ── */}
-                    {onAssignMedia && (
+                    {/* ── Media Slots (BG + GB) — hidden in Play mode ── */}
+                    {onAssignMedia && !isPlayMode && (
                         <div className="scene-card__media-slots">
                             <div className="scene-card__media-slot">
                                 <span className="scene-card__media-label">Background</span>
@@ -291,7 +321,7 @@ export function SceneCard({
                                     if (pickerSlot) onAssignMedia(scene.id, pickerSlot, asset)
                                     setPickerSlot(null)
                                 }}
-                                categoryFilter={pickerSlot === 'background' ? ['background'] : pickerSlot === 'gameboard' ? ['gameboard'] : undefined}
+                                categoryFilter={pickerSlot ? [pickerSlot] : undefined}
                                 selectedAssetId={pickerSlot === 'background' ? scene.backgroundAssetId : scene.gameboardAssetId}
                                 title={pickerSlot === 'background' ? 'Select Background' : 'Select Gameboard'}
                             />
@@ -317,17 +347,19 @@ export function SceneCard({
                             {linkedNotes.map((note) => (
                                 <span key={note.id} className="scene-card__note-pill">
                                     {note.title}
-                                    <button
-                                        className="scene-card__note-pill-remove"
-                                        onClick={() => onUnlinkNote(scene.id, note.id)}
-                                        aria-label={`Unlink note: ${note.title}`}
-                                    >
-                                        x
-                                    </button>
+                                    {!isPlayMode && (
+                                        <button
+                                            className="scene-card__note-pill-remove"
+                                            onClick={() => onUnlinkNote(scene.id, note.id)}
+                                            aria-label={`Unlink note: ${note.title}`}
+                                        >
+                                            x
+                                        </button>
+                                    )}
                                 </span>
                             ))}
                         </div>
-                        {showNoteDropdown ? (
+                        {showNoteDropdown && !isPlayMode ? (
                             <div className="scene-card__note-link-form">
                                 <input
                                     className="scene-card__input"
@@ -365,12 +397,14 @@ export function SceneCard({
                                 </button>
                             </div>
                         ) : (
-                            <button
-                                className="btn btn-ghost scene-card__btn-sm"
-                                onClick={() => setShowNoteDropdown(true)}
-                            >
-                                + Link Note
-                            </button>
+                            !isPlayMode && (
+                                <button
+                                    className="btn btn-ghost scene-card__btn-sm"
+                                    onClick={() => setShowNoteDropdown(true)}
+                                >
+                                    + Link Note
+                                </button>
+                            )
                         )}
                     </div>
 
@@ -412,13 +446,15 @@ export function SceneCard({
                                             >
                                                 {branch.transitionNote ? 'note' : '...'}
                                             </button>
-                                            <button
-                                                className="scene-card__branch-remove"
-                                                onClick={() => onRemoveBranch(scene.id, idx)}
-                                                aria-label={`Remove branch: ${branch.label}`}
-                                            >
-                                                x
-                                            </button>
+                                            {!isPlayMode && (
+                                                <button
+                                                    className="scene-card__branch-remove"
+                                                    onClick={() => onRemoveBranch(scene.id, idx)}
+                                                    aria-label={`Remove branch: ${branch.label}`}
+                                                >
+                                                    x
+                                                </button>
+                                            )}
                                         </div>
                                         {expandedTransition === idx && (
                                             <div className="scene-card__branch-transition">
@@ -430,7 +466,7 @@ export function SceneCard({
                             })}
                         </div>
 
-                        {showAddBranch ? (
+                        {showAddBranch && !isPlayMode ? (
                             <div className="scene-card__branch-form">
                                 <input
                                     className="scene-card__input"
@@ -473,12 +509,14 @@ export function SceneCard({
                                 </div>
                             </div>
                         ) : (
-                            <button
-                                className="btn btn-ghost scene-card__btn-sm"
-                                onClick={() => setShowAddBranch(true)}
-                            >
-                                + Add Branch
-                            </button>
+                            !isPlayMode && (
+                                <button
+                                    className="btn btn-ghost scene-card__btn-sm"
+                                    onClick={() => setShowAddBranch(true)}
+                                >
+                                    + Add Branch
+                                </button>
+                            )
                         )}
                     </div>
 

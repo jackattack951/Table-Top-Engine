@@ -286,6 +286,24 @@ export function createServer(
         res.json(scene)
     })
 
+    expressApp.get('/api/scenes/:id/summary', (req, res) => {
+        if (!dbInterface) { res.status(503).json({ error: 'DB not available' }); return }
+        const id = req.params['id'] ?? ''
+        const scene = dbInterface.getScene(id)
+        if (!scene) { res.status(404).json({ error: 'Scene not found' }); return }
+        try {
+            const npcs = dbInterface.getNPCsForScene(id)
+            const notes = dbInterface.getNotesForScene(id)
+            const items = dbInterface.getItemsForScene(id)
+            const bgAsset = scene.backgroundAssetId ? (dbInterface.getAsset(scene.backgroundAssetId) ?? null) : null
+            const gbAsset = scene.gameboardAssetId ? (dbInterface.getAsset(scene.gameboardAssetId) ?? null) : null
+            res.json({ scene, npcs, notes, items, bgAsset, gbAsset })
+        } catch (err) {
+            console.error('[api] GET /api/scenes/:id/summary error:', err)
+            res.status(500).json({ error: 'Internal server error' })
+        }
+    })
+
     expressApp.patch('/api/scenes/:id', (req, res) => {
         if (!dbInterface) { res.status(503).json({ error: 'DB not available' }); return }
         const id = req.params['id'] ?? ''

@@ -15,7 +15,8 @@ import type { Scene, SceneBranch } from '@core/types'
 import type { MediaAsset } from '@shared/asset-types'
 
 export function ScenesTab(): React.JSX.Element {
-    const { activeCampaignId } = useAppStore()
+    const { activeCampaignId, appMode } = useAppStore()
+    const isPlayMode = appMode === 'play'
     const { scenes, loading, error, refetch } = useScenes(activeCampaignId)
     const { activeScene, setActiveScene, cuedScene } = useSceneStore()
 
@@ -320,7 +321,7 @@ export function ScenesTab(): React.JSX.Element {
                             ))}
                         </div>
 
-                        {showNewForm ? (
+                        {!isPlayMode && (showNewForm ? (
                             <div className="scenes-tab__new-form">
                                 <input
                                     className="form-input scenes-tab__new-input"
@@ -351,7 +352,7 @@ export function ScenesTab(): React.JSX.Element {
                             >
                                 + New Scene
                             </button>
-                        )}
+                        ))}
                     </>
                 )}
 

@@ -50,7 +50,7 @@ const sceneBranched = makeScene({
 
 describe('SceneStore — default state', () => {
     beforeEach(() => {
-        useSceneStore.setState({ activeScene: null, cuedScene: null, previewScene: null })
+        useSceneStore.setState({ activeScene: null, cuedScene: null, previewScene: null, lastSavedAt: null })
     })
 
     it('activeScene defaults to null', () => {
@@ -59,6 +59,10 @@ describe('SceneStore — default state', () => {
 
     it('cuedScene defaults to null', () => {
         expect(useSceneStore.getState().cuedScene).toBeNull()
+    })
+
+    it('lastSavedAt defaults to null', () => {
+        expect(useSceneStore.getState().lastSavedAt).toBeNull()
     })
 })
 
@@ -162,6 +166,29 @@ describe('SceneStore — setActiveScene clears cuedScene and previewScene', () =
         useSceneStore.getState().setActiveScene(sceneB)
         expect(useSceneStore.getState().cuedScene).toEqual(sceneC)
         expect(useSceneStore.getState().previewScene).toEqual(sceneB)
+    })
+})
+
+describe('SceneStore — lastSavedAt (Sprint 22a)', () => {
+    beforeEach(() => {
+        useSceneStore.setState({ activeScene: sceneA, lastSavedAt: null })
+    })
+
+    it('setLastSavedAt stores a timestamp', () => {
+        useSceneStore.getState().setLastSavedAt(12345)
+        expect(useSceneStore.getState().lastSavedAt).toBe(12345)
+    })
+
+    it('setActiveScene resets lastSavedAt to null', () => {
+        useSceneStore.getState().setLastSavedAt(99999)
+        useSceneStore.getState().setActiveScene(sceneB)
+        expect(useSceneStore.getState().lastSavedAt).toBeNull()
+    })
+
+    it('setActiveScene(null) also resets lastSavedAt', () => {
+        useSceneStore.getState().setLastSavedAt(99999)
+        useSceneStore.getState().setActiveScene(null)
+        expect(useSceneStore.getState().lastSavedAt).toBeNull()
     })
 })
 

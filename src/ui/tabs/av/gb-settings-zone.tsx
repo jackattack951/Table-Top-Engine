@@ -2,15 +2,18 @@ import React, { useState, useCallback } from 'react'
 import { useFogStore } from '../../stores/fog-store'
 import { useSceneStore } from '../../stores/scene-store'
 import { useAVStore } from '../../stores/av-store'
+import { useAppStore } from '../../stores/app-store'
 import { FogControls } from '../dashboard/fog-controls'
 import { FogOverlay } from '../dashboard/fog-overlay'
 import { MediaPicker } from '../../components/media-picker'
 import { ColorGradeCard } from './color-grade-card'
 import { getAssetFileUrl } from '../../hooks/use-assets'
 import { patchScene } from '../../hooks/use-scenes'
-import { loadScene } from '../../lib/sync'
-import { emitFogToggle } from '../../lib/sync'
+import { loadScene, emitFogToggle } from '../../lib/sync'
 import type { MediaAsset } from '@shared/asset-types'
+
+// Stable no-op — FogControls handles socket emit and REST call internally
+function noop(): void {}
 
 /**
  * Game Board column — fog of war, media, color grade.
@@ -47,52 +50,52 @@ export function GBSettingsZone(): React.JSX.Element {
         }
     }, [activeScene, setActiveScene])
 
-    // No-op: FogControls handles socket emit and REST call internally
-    const handleFogReset = useCallback((_mode: 'fog-all' | 'reveal-all') => {}, [])
-
+    const isPlayMode = useAppStore((s) => s.appMode === 'play')
     const hasMedia = !!activeScene?.gameboardAssetId
 
     return (
         <>
-            {/* Gameboard Media */}
-            <div className={`av-card${hasMedia ? ' av-card--active' : ''}`}>
-                <div className="av-card__title">Media</div>
-                {activeScene?.gameboardAssetId ? (
-                    <div className="av-media-preview">
-                        <img
-                            className="av-media-preview__thumb"
-                            src={getAssetFileUrl(activeScene.gameboardAssetId)}
-                            alt="Gameboard asset"
-                        />
-                        <div className="av-media-preview__actions">
-                            <button className="btn btn-ghost btn-sm" onClick={() => setPickerOpen(true)}>
-                                Change
-                            </button>
-                            <button
-                                className="btn btn-ghost btn-sm"
-                                onClick={() => void handleClearMedia()}
-                            >
-                                Clear
-                            </button>
+            {/* Gameboard Media — hidden in Play mode */}
+            {!isPlayMode && (
+                <div className={`av-card${hasMedia ? ' av-card--active' : ''}`}>
+                    <div className="av-card__title">Media</div>
+                    {activeScene?.gameboardAssetId ? (
+                        <div className="av-media-preview">
+                            <img
+                                className="av-media-preview__thumb"
+                                src={getAssetFileUrl(activeScene.gameboardAssetId)}
+                                alt="Gameboard asset"
+                            />
+                            <div className="av-media-preview__actions">
+                                <button className="btn btn-ghost btn-sm" onClick={() => setPickerOpen(true)}>
+                                    Change
+                                </button>
+                                <button
+                                    className="btn btn-ghost btn-sm"
+                                    onClick={() => void handleClearMedia()}
+                                >
+                                    Clear
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <button className="btn btn-ghost" onClick={() => setPickerOpen(true)} disabled={!activeScene}>
-                        Browse Library
-                    </button>
-                )}
-                {!activeScene && (
-                    <p className="av-card__hint">Load a scene to assign gameboard media</p>
-                )}
-                <MediaPicker
-                    open={pickerOpen}
-                    onClose={() => setPickerOpen(false)}
-                    onSelect={(asset) => void handleSelectMedia(asset)}
-                    categoryFilter={['gameboard']}
-                    selectedAssetId={activeScene?.gameboardAssetId}
-                    title="Select Gameboard"
-                />
-            </div>
+                    ) : (
+                        <button className="btn btn-ghost" onClick={() => setPickerOpen(true)} disabled={!activeScene}>
+                            Browse Library
+                        </button>
+                    )}
+                    {!activeScene && (
+                        <p className="av-card__hint">Load a scene to assign gameboard media</p>
+                    )}
+                    <MediaPicker
+                        open={pickerOpen}
+                        onClose={() => setPickerOpen(false)}
+                        onSelect={(asset) => void handleSelectMedia(asset)}
+                        categoryFilter={['gameboard']}
+                        selectedAssetId={activeScene?.gameboardAssetId}
+                        title="Select Gameboard"
+                    />
+                </div>
+            )}
 
             {/* Fog of War */}
             <div className={`av-card${fogEnabled ? ' av-card--active' : ''}`}>
@@ -116,7 +119,7 @@ export function GBSettingsZone(): React.JSX.Element {
                         <div className="gb-settings__fog-canvas">
                             <FogOverlay />
                         </div>
-                        <FogControls onReset={handleFogReset} />
+                        <FogControls onReset={noop} />
                     </>
                 )}
                 {fogEnabled && !activeScene && (
