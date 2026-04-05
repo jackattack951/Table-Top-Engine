@@ -821,6 +821,33 @@ SCENE_SNAPSHOT_RESTORED: 'scene:snapshotRestored'  // Server → Cockpit: { scen
 
 ---
 
+## Sprint 24 — Quick Wins (COMPLETE — 963 tests, 57 test files)
+
+**Completed:** 2026-04-05
+
+**What was built:**
+
+- **24a — Bug Fix + Backlog Cleanup:**
+  - Fixed notes strip empty on initial dashboard load — added `useNotes(activeCampaignId)` to `DashboardTab.tsx`. Hook is idempotent; same call already exists in NotesTab/ScenesTab.
+  - Moved "Item States in Quick Reference" to Backlog completed section (already implemented: migration 009, `quick-items.tsx`).
+
+- **24b — Scene Ready Indicator:**
+  - Green dot on each scene timeline node when the scene has a `backgroundPath` or `backgroundAssetId`; gray dot otherwise.
+  - CSS: `.scene-timeline__ready-dot` + `.scene-timeline__ready-dot--ready` (uses `--color-success` token).
+  - Idle screen already shows on both BG and GB roles — no change needed.
+
+- **24c — Atmosphere Slider + Spell Pins:**
+  - Added `VerticalFader` (size="short") to the AMB sub-tab in `AtmosphereControl`. Single slider drives `useMoodStore.setValue` + `useAVStore.setParticles` intensity proportionally (0–1).
+  - New `src/ui/stores/spells-store.ts` — session-scoped Zustand store: `searchHistory: string[]` (last 10, deduped), `pinnedSpellIds: string[]` (max 5).
+  - `SpellsTab` shows history chips + pinned section above results. Pin/unpin button (★/☆) on each `ResultCard`.
+  - `QuickSpells` (dashboard) shows pinned spells + recent searches (capped at 5 chips for space).
+  - `lookupSRDEntry(id)` added to `srd-search.ts` — pre-built `Map<string, SRDSearchResult>` for O(1) pin lookup (avoids N full SRD scans per render).
+  - Nested button HTML invalidity fixed in `ResultCard` — pin button moved to sibling of header button inside `.srd-card__row`.
+
+**Test count:** 963 (57 test files) — +9 from Sprint 23
+
+---
+
 ## Sprint 23 — Global Settings Page (COMPLETE — 941 tests, 55 test files)
 
 **Completed:** 2026-04-05
