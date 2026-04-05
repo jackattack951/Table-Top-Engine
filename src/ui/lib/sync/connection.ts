@@ -132,7 +132,11 @@ function fetchAndSetScene(sceneId: string): void {
 function persistToScene<T>(toPartial: (value: T) => Partial<Scene>, ms = 2000) {
     return debounce((value: T) => {
         const sceneId = useSceneStore.getState().activeScene?.id
-        if (sceneId) void patchScene(sceneId, toPartial(value)).catch(() => {})
+        if (sceneId) {
+            void patchScene(sceneId, toPartial(value))
+                .then(() => useSceneStore.getState().setLastSavedAt(Date.now()))
+                .catch(() => {})
+        }
     }, ms)
 }
 

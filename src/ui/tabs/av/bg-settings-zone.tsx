@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import { useAVStore } from '../../stores/av-store'
 import { useSceneStore } from '../../stores/scene-store'
+import { useAppStore } from '../../stores/app-store'
 import { MediaPicker } from '../../components/media-picker'
 import { VerticalFader } from '../../components/vertical-fader'
 import { ColorGradeCard } from './color-grade-card'
@@ -27,6 +28,7 @@ export function BGSettingsZone(): React.JSX.Element {
     const { particles, setParticles, colorGrade, setColorGrade } = useAVStore()
     const activeScene = useSceneStore((s) => s.activeScene)
     const setActiveScene = useSceneStore((s) => s.setActiveScene)
+    const isPlayMode = useAppStore((s) => s.appMode === 'play')
     const [pickerOpen, setPickerOpen] = useState(false)
 
     const handleSelectMedia = useCallback(async (asset: MediaAsset) => {
@@ -67,45 +69,47 @@ export function BGSettingsZone(): React.JSX.Element {
 
     return (
         <>
-            {/* Background Media */}
-            <div className={`av-card${hasMedia ? ' av-card--active' : ''}`}>
-                <div className="av-card__title">Media</div>
-                {activeScene?.backgroundAssetId ? (
-                    <div className="av-media-preview">
-                        <img
-                            className="av-media-preview__thumb"
-                            src={getAssetFileUrl(activeScene.backgroundAssetId)}
-                            alt="Background asset"
-                        />
-                        <div className="av-media-preview__actions">
-                            <button className="btn btn-ghost btn-sm" onClick={() => setPickerOpen(true)}>
-                                Change
-                            </button>
-                            <button
-                                className="btn btn-ghost btn-sm"
-                                onClick={() => void handleClearMedia()}
-                            >
-                                Clear
-                            </button>
+            {/* Background Media — hidden in Play mode */}
+            {!isPlayMode && (
+                <div className={`av-card${hasMedia ? ' av-card--active' : ''}`}>
+                    <div className="av-card__title">Media</div>
+                    {activeScene?.backgroundAssetId ? (
+                        <div className="av-media-preview">
+                            <img
+                                className="av-media-preview__thumb"
+                                src={getAssetFileUrl(activeScene.backgroundAssetId)}
+                                alt="Background asset"
+                            />
+                            <div className="av-media-preview__actions">
+                                <button className="btn btn-ghost btn-sm" onClick={() => setPickerOpen(true)}>
+                                    Change
+                                </button>
+                                <button
+                                    className="btn btn-ghost btn-sm"
+                                    onClick={() => void handleClearMedia()}
+                                >
+                                    Clear
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <button className="btn btn-ghost" onClick={() => setPickerOpen(true)} disabled={!activeScene}>
-                        Browse Library
-                    </button>
-                )}
-                {!activeScene && (
-                    <p className="av-card__hint">Load a scene to assign background media</p>
-                )}
-                <MediaPicker
-                    open={pickerOpen}
-                    onClose={() => setPickerOpen(false)}
-                    onSelect={(asset) => void handleSelectMedia(asset)}
-                    categoryFilter={['background']}
-                    selectedAssetId={activeScene?.backgroundAssetId}
-                    title="Select Background"
-                />
-            </div>
+                    ) : (
+                        <button className="btn btn-ghost" onClick={() => setPickerOpen(true)} disabled={!activeScene}>
+                            Browse Library
+                        </button>
+                    )}
+                    {!activeScene && (
+                        <p className="av-card__hint">Load a scene to assign background media</p>
+                    )}
+                    <MediaPicker
+                        open={pickerOpen}
+                        onClose={() => setPickerOpen(false)}
+                        onSelect={(asset) => void handleSelectMedia(asset)}
+                        categoryFilter={['background']}
+                        selectedAssetId={activeScene?.backgroundAssetId}
+                        title="Select Background"
+                    />
+                </div>
+            )}
 
             {/* Particles */}
             <div className={`av-card${particlesActive ? ' av-card--active' : ''}`}>

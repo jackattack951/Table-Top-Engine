@@ -7,10 +7,14 @@ interface SceneState {
     cuedScene: Scene | null
     /** Cockpit-only preview — DM clicking around timeline. No AV impact. */
     previewScene: Scene | null
+    /** Timestamp (Date.now()) of the last successful PATCH /api/scenes/:id. Null until first save or on scene change. */
+    lastSavedAt: number | null
     setActiveScene: (scene: Scene | null) => void
     setCuedScene: (scene: Scene | null) => void
     /** Set the preview scene (DM browsing). Cockpit-only, no AV preload. */
     setPreviewScene: (scene: Scene | null) => void
+    /** Called by sync layer after a successful PATCH. Drives the save indicator. */
+    setLastSavedAt: (ts: number) => void
     /**
      * Move cuedScene → activeScene, clear cuedScene + previewScene, then auto-cue next.
      * Pass the full scene list so autoCue can find the next scene by sortOrder.
@@ -35,13 +39,16 @@ export const useSceneStore = create<SceneState>()(
         activeScene: null,
         cuedScene: null,
         previewScene: null,
+        lastSavedAt: null,
         setActiveScene: (scene) => set({
             activeScene: scene,
             cuedScene: scene === null ? null : get().cuedScene,
             previewScene: scene === null ? null : get().previewScene,
+            lastSavedAt: null,
         }),
         setCuedScene: (scene) => set({ cuedScene: scene }),
         setPreviewScene: (scene) => set({ previewScene: scene }),
+        setLastSavedAt: (ts) => set({ lastSavedAt: ts }),
         takeScene: (scenes) => {
             const { cuedScene } = get()
             if (!cuedScene) return

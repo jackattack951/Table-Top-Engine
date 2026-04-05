@@ -17,6 +17,7 @@
  */
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { useSceneStore } from '@ui/stores/scene-store'
+import { useAppStore } from '@ui/stores/app-store'
 import { patchScene } from '@ui/hooks/use-scenes'
 import { loadScene } from '@ui/lib/sync'
 import type { Scene } from '@core/types'
@@ -86,6 +87,7 @@ interface SceneNodeProps {
     onDrop: (targetId: string) => void
     isDragging: boolean
     isDragOver: boolean
+    draggable: boolean
 }
 
 function SceneNode({
@@ -98,6 +100,7 @@ function SceneNode({
     onDrop,
     isDragging,
     isDragOver,
+    draggable,
 }: SceneNodeProps): React.JSX.Element {
     const hasBranches = scene.branches.length > 0
 
@@ -110,20 +113,19 @@ function SceneNode({
         [allScenes, onNavigate],
     )
 
-    let nodeClass = 'scene-timeline__node'
-    if (variant === 'past') nodeClass += ' scene-timeline__node--past'
-    if (variant === 'active') nodeClass += ' scene-timeline__node--active'
-    if (variant === 'cued') nodeClass += ' scene-timeline__node--cued'
-    if (variant === 'preview') nodeClass += ' scene-timeline__node--preview'
-    if (isDragging) nodeClass += ' dragging'
-    if (isDragOver) nodeClass += ' drag-over'
+    const nodeClass = [
+        'scene-timeline__node',
+        variant !== 'future' && `scene-timeline__node--${variant}`,
+        isDragging && 'dragging',
+        isDragOver && 'drag-over',
+    ].filter(Boolean).join(' ')
 
     return (
         <button
             className={nodeClass}
             onClick={() => onNavigate(scene)}
-            draggable
-            onDragStart={() => onDragStart(scene.id)}
+            draggable={draggable}
+            onDragStart={() => { if (draggable) onDragStart(scene.id) }}
             onDragOver={(e) => onDragOver(e, scene.id)}
             onDrop={() => onDrop(scene.id)}
             aria-current={variant === 'active' ? 'true' : undefined}
@@ -182,6 +184,7 @@ interface SceneTimelineProps {
 }
 
 export function SceneTimeline({ scenes, loading, error, refetch }: SceneTimelineProps): React.JSX.Element {
+    const isPlayMode = useAppStore((s) => s.appMode === 'play')
     const activeScene = useSceneStore((s) => s.activeScene)
     const cuedScene = useSceneStore((s) => s.cuedScene)
     const previewScene = useSceneStore((s) => s.previewScene)
@@ -317,6 +320,7 @@ export function SceneTimeline({ scenes, loading, error, refetch }: SceneTimeline
                             onDrop={handleDrop}
                             isDragging={draggingId === scene.id}
                             isDragOver={dragOverId === scene.id}
+                            draggable={!isPlayMode}
                         />
                         {!isLast && <Connector afterVariant={variant} />}
                     </React.Fragment>
