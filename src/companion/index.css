@@ -1380,7 +1380,7 @@ body {
 }
 
 .roll-prompt-overlay__card {
-  background: var(--bg-secondary);
+  background: var(--color-surface-2);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   padding: var(--space-8) var(--space-6);
@@ -1419,7 +1419,7 @@ body {
 .roll-prompt-overlay__timer {
   font-size: var(--text-2xl);
   font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--color-text-2);
   font-variant-numeric: tabular-nums;
   transition: color var(--transition-fast);
 }
@@ -1464,7 +1464,7 @@ body {
 
 .roll-prompt-overlay__result-label {
   font-size: var(--text-sm);
-  color: var(--text-muted);
+  color: var(--color-text-3);
 }
 
 /* ─── Join Screen — Roster Picker (Sprint 21c) ───────────────────────────────── */
@@ -1481,9 +1481,9 @@ body {
   align-items: flex-start;
   gap: 2px;
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--bg-secondary);
+  background: var(--color-surface-2);
   cursor: pointer;
   text-align: left;
   width: 100%;
@@ -1493,7 +1493,7 @@ body {
 
 .join-screen__roster-card:hover {
   border-color: var(--color-accent);
-  background: var(--bg-tertiary);
+  background: var(--color-surface-3);
 }
 
 .join-screen__roster-card--selected {
@@ -1512,11 +1512,11 @@ body {
 
 .join-screen__roster-meta {
   font-size: var(--text-sm);
-  color: var(--text-muted);
+  color: var(--color-text-3);
 }
 
 .join-screen__readonly {
-  background: var(--bg-tertiary);
+  background: var(--color-surface-3);
   color: var(--color-text);
   pointer-events: none;
   user-select: none;
