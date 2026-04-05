@@ -351,12 +351,10 @@ async function boot(): Promise<void> {
         void handleSceneCue(sceneId)
     })
 
-    socket.on(EVENTS.STATE_SYNC, (data: unknown) => {
-        const state = data as { activeSceneId?: string | null }
-        if (state.activeSceneId) {
-            void handleSceneLoad(state.activeSceneId)
-        }
-    })
+    // STATE_SYNC on initial connect — intentionally ignored.
+    // AV Display always starts on the idle/lobby screen regardless of cockpit state.
+    // Only an explicit SCENE_LOAD (DM presses TAKE) transitions away from idle.
+    socket.on(EVENTS.STATE_SYNC, () => { /* no-op: idle screen persists until TAKE */ })
 
     socket.on(EVENTS.SCENE_LOAD, (data: unknown) => {
         const { sceneId, backgroundPath, gameboardPath } = data as {
@@ -577,6 +575,14 @@ async function boot(): Promise<void> {
     socket.on(EVENTS.COMBAT_UPDATE, (data: unknown) => {
         const combatState = data as CombatState
         renderOverlay(combatState)
+    })
+
+    // Session ended — return to idle screen by hiding media layers
+    socket.on(EVENTS.SESSION_ENDED, () => {
+        layerStack.layers.background.visible = false
+        layerStack.layers.gameboard.visible = false
+        layerStack.layers.fog.visible = false
+        setStatus('Session ended')
     })
 
     // QR overlay (Phase 6 — both roles, all AV windows)

@@ -1,14 +1,10 @@
 /**
- * DashboardTab — 3-column cockpit layout (Sprint 10b) or Campaign Home (Sprint 16c).
+ * DashboardTab — 3-column cockpit layout (Sprint 10b).
  *
- * When a scene is active:
+ * Layout:
  *   [GBPreviewColumn] [CenterColumn] [QuickAccessColumn]
  *   [Scene Timeline — Sprint 10d]
  *   [Notes Strip — Sprint 10e]
- *
- * When no scene is active (activeScene === null):
- *   [CampaignHomePanel — global factions, lore, NPCs, items, scene roster]
- *   [Scene Timeline — Sprint 10d]
  *
  * OutputSection, Scene Library, and BranchPanel have been moved to their
  * respective dedicated tabs (AV tab and Scenes tab).
@@ -22,38 +18,23 @@ import { CenterColumn } from './dashboard/center-column'
 import { QuickAccessColumn } from './dashboard/quick-access-column'
 import { SceneTimeline } from './dashboard/scene-timeline'
 import { NotesStrip } from './dashboard/notes-strip'
-import { CampaignHomePanel } from './dashboard/campaign-home-panel'
 import { TransportBar } from './dashboard/transport-bar'
 
 export function DashboardTab(): React.JSX.Element {
     const activeScene = useSceneStore((s) => s.activeScene)
     const cuedScene = useSceneStore((s) => s.cuedScene)
     const previewScene = useSceneStore((s) => s.previewScene)
-    const setActiveScene = useSceneStore((s) => s.setActiveScene)
     const activeCampaignId = useAppStore((s) => s.activeCampaignId)
     const { scenes, loading, error, refetch } = useScenes(activeCampaignId)
 
     return (
         <div className="dashboard">
-            {/* ── Main content: Campaign Home or Scene Dashboard ──────────── */}
-            {activeScene ? (
-                <>
-                    <button
-                        className="dashboard__home-btn"
-                        onClick={() => setActiveScene(null)}
-                        aria-label="Return to Campaign Home"
-                    >
-                        Campaign Home
-                    </button>
-                    <div className="dashboard__columns">
-                        <GBPreviewColumn />
-                        <CenterColumn />
-                        <QuickAccessColumn />
-                    </div>
-                </>
-            ) : (
-                <CampaignHomePanel />
-            )}
+            {/* ── Main content: 3-column scene dashboard ─────────────────── */}
+            <div className="dashboard__columns">
+                <GBPreviewColumn />
+                <CenterColumn />
+                <QuickAccessColumn />
+            </div>
 
             {/* ── Transport bar — volume + CUE/TAKE above timeline ────── */}
             <TransportBar scenes={scenes} />
