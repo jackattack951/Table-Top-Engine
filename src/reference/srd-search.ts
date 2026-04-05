@@ -233,3 +233,29 @@ export function searchSRD(query: string, filter: FilterType = 'all'): SRDSearchR
 
     return candidates.slice(0, MAX_RESULTS).map((c) => c.result)
 }
+
+// ── Direct lookup ─────────────────────────────────────────────────────────────
+
+/**
+ * Pre-built lookup map: `"type:name"` → SRDSearchResult.
+ * Avoids a full scan for each pinned entry (O(1) vs O(N) per lookup).
+ */
+const SRD_INDEX: Map<string, SRDSearchResult> = new Map([
+    ...SPELLS.map((s): [string, SRDSearchResult] => [
+        `spell:${s.name}`,
+        { type: 'spell', name: s.name, summary: spellSummary(s), data: s },
+    ]),
+    ...MONSTERS.map((m): [string, SRDSearchResult] => [
+        `monster:${m.name}`,
+        { type: 'monster', name: m.name, summary: monsterSummary(m), data: m },
+    ]),
+    ...CONDITIONS.map((c): [string, SRDSearchResult] => [
+        `condition:${c.name}`,
+        { type: 'condition', name: c.name, summary: conditionSummary(c), data: c },
+    ]),
+])
+
+/** Look up a single SRD entry by its `"type:name"` key. Returns undefined if not found. */
+export function lookupSRDEntry(id: string): SRDSearchResult | undefined {
+    return SRD_INDEX.get(id)
+}

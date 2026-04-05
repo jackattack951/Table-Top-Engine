@@ -1,12 +1,14 @@
 /**
- * Spells & Reference Tab — Sprint 5 (CSS polish pass: Sprint 15).
+ * Spells & Reference Tab — Sprint 5 (CSS polish pass: Sprint 15, pins+history: Sprint 24c).
  * Fully local SRD reference for spells, monsters, and conditions.
  * No REST calls — reads directly from bundled JSON via srd-search module.
- * Supports name/class/school/description search and filter-by-type pills.
+ * Supports name/class/school/description search, filter-by-type pills,
+ * search history chips, and pinned spells (session-scoped via spells-store).
  */
 import React, { useState, useMemo } from 'react'
 import {
     searchSRD,
+    lookupSRDEntry,
     type SRDSearchResult,
     type SpellEntry,
     type MonsterEntry,
@@ -15,6 +17,7 @@ import {
     type FilterType,
 } from '@reference/srd-search'
 import { formatModifier } from '@shared/player-types'
+import { useSpellsStore } from '@ui/stores/spells-store'
 
 // ── Expanded detail cards ─────────────────────────────────────────────────────
 
@@ -110,31 +113,46 @@ function ResultCard({
     result,
     expanded,
     onToggle,
+    pinned,
+    onPin,
 }: {
     result: SRDSearchResult
     expanded: boolean
     onToggle: () => void
+    pinned: boolean
+    onPin: () => void
 }): React.JSX.Element {
     const cardClass = `srd-card srd-card--${result.type}${expanded ? ' srd-card--expanded' : ''}`
 
     return (
         <div className={cardClass}>
-            <button
-                className="srd-card__header"
-                onClick={onToggle}
-                aria-expanded={expanded}
-            >
-                <span className={`srd-card__type srd-card__type--${result.type}`}>
-                    {result.type}
-                </span>
-                <div className="srd-card__info">
-                    <div className="srd-card__name">{result.name}</div>
-                    <div className="srd-card__summary">{result.summary}</div>
-                </div>
-                <span className="srd-card__expand">
-                    {expanded ? '\u25B2' : '\u25BC'}
-                </span>
-            </button>
+            <div className="srd-card__row">
+                <button
+                    className="srd-card__header"
+                    onClick={onToggle}
+                    aria-expanded={expanded}
+                >
+                    <span className={`srd-card__type srd-card__type--${result.type}`}>
+                        {result.type}
+                    </span>
+                    <div className="srd-card__info">
+                        <div className="srd-card__name">{result.name}</div>
+                        <div className="srd-card__summary">{result.summary}</div>
+                    </div>
+                    <span className="srd-card__expand">
+                        {expanded ? '\u25B2' : '\u25BC'}
+                    </span>
+                </button>
+                <button
+                    className={`srd-card__pin${pinned ? ' srd-card__pin--active' : ''}`}
+                    onClick={onPin}
+                    aria-label={pinned ? `Unpin ${result.name}` : `Pin ${result.name}`}
+                    aria-pressed={pinned}
+                    title={pinned ? 'Unpin' : 'Pin to top'}
+                >
+                    {pinned ? '\u2605' : '\u2606'}
+                </button>
+            </div>
             {expanded && (
                 <div className="srd-card__body">
                     {result.type === 'spell' && <SpellCard spell={result.data as SpellEntry} />}
@@ -171,12 +189,46 @@ export function SpellsTab(): React.JSX.Element {
     const [filter, setFilter] = useState<FilterType>('all')
     const [expandedName, setExpandedName] = useState<string | null>(null)
 
+    const searchHistory = useSpellsStore((s) => s.searchHistory)
+    const pinnedSpellIds = useSpellsStore((s) => s.pinnedSpellIds)
+    const pushHistory = useSpellsStore((s) => s.pushHistory)
+    const clearHistory = useSpellsStore((s) => s.clearHistory)
+    const pinSpell = useSpellsStore((s) => s.pinSpell)
+    const unpinSpell = useSpellsStore((s) => s.unpinSpell)
+
     const results = useMemo((): SRDSearchResult[] => {
         return searchSRD(query, filter)
     }, [query, filter])
 
+    const pinnedResults = useMemo(
+        () => pinnedSpellIds.map(lookupSRDEntry).filter((r): r is SRDSearchResult => r !== undefined),
+        [pinnedSpellIds],
+    )
+
     function toggleExpand(name: string): void {
         setExpandedName((prev) => (prev === name ? null : name))
+    }
+
+    function handleQueryChange(value: string): void {
+        setQuery(value)
+        setExpandedName(null)
+    }
+
+    function handleQueryBlur(): void {
+        if (query.trim()) pushHistory(query.trim())
+    }
+
+    function handleHistoryChip(q: string): void {
+        setQuery(q)
+        setExpandedName(null)
+    }
+
+    function togglePin(resultKey: string): void {
+        if (pinnedSpellIds.includes(resultKey)) {
+            unpinSpell(resultKey)
+        } else {
+            pinSpell(resultKey)
+        }
     }
 
     return (
@@ -190,10 +242,8 @@ export function SpellsTab(): React.JSX.Element {
                         type="search"
                         placeholder="Search spells, monsters, conditions\u2026"
                         value={query}
-                        onChange={(e) => {
-                            setQuery(e.target.value)
-                            setExpandedName(null)
-                        }}
+                        onChange={(e) => handleQueryChange(e.target.value)}
+                        onBlur={handleQueryBlur}
                         aria-label="Search SRD reference"
                         autoFocus
                     />
@@ -212,9 +262,50 @@ export function SpellsTab(): React.JSX.Element {
                     </div>
                 </div>
 
+                {/* Recent searches */}
+                {searchHistory.length > 0 && query.trim() === '' && (
+                    <div className="srd-history">
+                        <span className="srd-history__label">Recent</span>
+                        <div className="srd-history__chips">
+                            {searchHistory.map((q) => (
+                                <button
+                                    key={q}
+                                    className="srd-history__chip"
+                                    onClick={() => handleHistoryChip(q)}
+                                >
+                                    {q}
+                                </button>
+                            ))}
+                        </div>
+                        <button className="srd-history__clear" onClick={clearHistory}>
+                            Clear
+                        </button>
+                    </div>
+                )}
+
+                {/* Pinned spells */}
+                {pinnedResults.length > 0 && query.trim() === '' && (
+                    <div className="srd-pinned">
+                        <div className="srd-pinned__label">Pinned</div>
+                        {pinnedResults.map((result) => {
+                            const key = `${result.type}:${result.name}`
+                            return (
+                                <ResultCard
+                                    key={key}
+                                    result={result}
+                                    expanded={expandedName === key}
+                                    onToggle={() => toggleExpand(key)}
+                                    pinned
+                                    onPin={() => togglePin(key)}
+                                />
+                            )
+                        })}
+                    </div>
+                )}
+
                 {/* Results list */}
                 <div className="srd-tab__results">
-                    {query.trim() === '' && (
+                    {query.trim() === '' && pinnedResults.length === 0 && (
                         <div className="tab-placeholder tab-placeholder--compact">
                             <span className="tab-placeholder__icon">&#128218;</span>
                             <div className="tab-placeholder__title">Spells &amp; Reference</div>
@@ -233,14 +324,19 @@ export function SpellsTab(): React.JSX.Element {
                         </div>
                     )}
 
-                    {results.map((result) => (
-                        <ResultCard
-                            key={`${result.type}:${result.name}`}
-                            result={result}
-                            expanded={expandedName === `${result.type}:${result.name}`}
-                            onToggle={() => toggleExpand(`${result.type}:${result.name}`)}
-                        />
-                    ))}
+                    {results.map((result) => {
+                        const key = `${result.type}:${result.name}`
+                        return (
+                            <ResultCard
+                                key={key}
+                                result={result}
+                                expanded={expandedName === key}
+                                onToggle={() => toggleExpand(key)}
+                                pinned={pinnedSpellIds.includes(key)}
+                                onPin={() => togglePin(key)}
+                            />
+                        )
+                    })}
 
                     {results.length === 20 && (
                         <p className="srd-tab__hint">

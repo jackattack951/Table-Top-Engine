@@ -13,10 +13,12 @@
  */
 import React from 'react'
 import { useMoodStore } from '../../stores/mood-store'
+import { useAVStore } from '../../stores/av-store'
 import { useOutputStore } from '../../stores/output-store'
 import { emitEnvironmentChange } from '../../lib/sync'
 import { ENVIRONMENT_AUDIO_CONFIGS, getEnvironmentAudioConfig } from '@systems/audio/audio-config'
 import { getMoodZone, type MoodZone } from '@systems/audio/mood-engine'
+import { VerticalFader } from '../../components/vertical-fader'
 
 type MoodZoneButton = {
     id: 'calm' | 'tense' | 'dramatic'
@@ -35,8 +37,15 @@ export function AtmosphereControl(): React.JSX.Element {
     const environmentId = useMoodStore((s) => s.environmentId)
     const setValue = useMoodStore((s) => s.setValue)
     const setEnvironmentId = useMoodStore((s) => s.setEnvironmentId)
+    const particles = useAVStore((s) => s.particles)
+    const setParticles = useAVStore((s) => s.setParticles)
 
     const hasBGOutput = useOutputStore((s) => s.outputs.BG !== null)
+
+    function handleAtmosphereSlider(v: number): void {
+        setValue(v)
+        setParticles(particles.type, v)
+    }
 
     const activeZone = getMoodZone(moodValue)
     const isLive = hasBGOutput && !!environmentId
@@ -108,6 +117,18 @@ export function AtmosphereControl(): React.JSX.Element {
                 {!environmentId && (
                     <p className="atmo-control__hint">Select an environment to enable mood controls</p>
                 )}
+            </div>
+
+            <div className="atmo-control__section atmo-control__section--fader">
+                <div className="atmo-control__label">Intensity</div>
+                <div className="atmo-control__fader-row">
+                    <VerticalFader
+                        value={moodValue}
+                        onChange={handleAtmosphereSlider}
+                        label="Atmosphere"
+                        size="short"
+                    />
+                </div>
             </div>
 
         </div>
