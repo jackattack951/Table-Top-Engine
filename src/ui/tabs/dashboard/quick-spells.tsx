@@ -3,16 +3,19 @@
  * Space-constrained: no filter pills, search across all types.
  * Shows up to 10 results; click a result to expand full details.
  * Uses searchSRD directly (offline, no REST calls).
+ * Sprint 24c: shows pinned spells + recent search chips from spells-store.
  */
 import React, { useState, useMemo } from 'react'
 import {
     searchSRD,
+    lookupSRDEntry,
     type SRDSearchResult,
     type SpellEntry,
     type MonsterEntry,
     type MonsterAction,
     type ConditionEntry,
 } from '@reference/srd-search'
+import { useSpellsStore } from '@ui/stores/spells-store'
 
 const MAX_RESULTS = 10
 
@@ -130,18 +133,33 @@ export function QuickSpells(): React.JSX.Element {
     const [query, setQuery] = useState('')
     const [expandedKey, setExpandedKey] = useState<string | null>(null)
 
+    const searchHistory = useSpellsStore((s) => s.searchHistory)
+    const pinnedSpellIds = useSpellsStore((s) => s.pinnedSpellIds)
+    const pushHistory = useSpellsStore((s) => s.pushHistory)
+
     const results = useMemo((): SRDSearchResult[] => {
         return searchSRD(query).slice(0, MAX_RESULTS)
     }, [query])
+
+    const pinnedResults = useMemo(
+        () => pinnedSpellIds.map(lookupSRDEntry).filter((r): r is SRDSearchResult => r !== undefined),
+        [pinnedSpellIds],
+    )
 
     function handleQueryChange(value: string): void {
         setQuery(value)
         setExpandedKey(null)
     }
 
+    function handleQueryBlur(): void {
+        if (query.trim()) pushHistory(query.trim())
+    }
+
     function toggleExpand(key: string): void {
         setExpandedKey((prev) => (prev === key ? null : key))
     }
+
+    const isEmpty = query.trim() === ''
 
     return (
         <div className="quick-spells">
@@ -151,18 +169,57 @@ export function QuickSpells(): React.JSX.Element {
                 placeholder="Search spells, monsters, conditions…"
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
+                onBlur={handleQueryBlur}
                 aria-label="Search SRD reference"
             />
 
-            {query.trim() === '' && (
+            {/* Pinned spells — shown when not searching */}
+            {isEmpty && pinnedResults.length > 0 && (
+                <div className="quick-spells__pinned">
+                    <p className="quick-spells__section-label">Pinned</p>
+                    <div className="quick-spells__results" role="list">
+                        {pinnedResults.map((result) => {
+                            const key = `${result.type}:${result.name}`
+                            return (
+                                <QuickSpellResult
+                                    key={key}
+                                    result={result}
+                                    expanded={expandedKey === key}
+                                    onToggle={() => toggleExpand(key)}
+                                />
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
+
+            {/* Recent searches — shown when not searching */}
+            {isEmpty && searchHistory.length > 0 && (
+                <div className="quick-spells__history">
+                    <p className="quick-spells__section-label">Recent</p>
+                    <div className="quick-spells__chips">
+                        {searchHistory.slice(0, 5).map((q) => (
+                            <button
+                                key={q}
+                                className="quick-spells__chip"
+                                onClick={() => { setQuery(q); setExpandedKey(null) }}
+                            >
+                                {q}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {isEmpty && pinnedResults.length === 0 && searchHistory.length === 0 && (
                 <p className="quick-spells__hint">Type to search the 5e SRD</p>
             )}
 
-            {query.trim() !== '' && results.length === 0 && (
+            {!isEmpty && results.length === 0 && (
                 <p className="quick-spells__hint">No results for "{query}"</p>
             )}
 
-            {results.length > 0 && (
+            {!isEmpty && results.length > 0 && (
                 <div className="quick-spells__results" role="list">
                     {results.map((result) => {
                         const key = `${result.type}:${result.name}`

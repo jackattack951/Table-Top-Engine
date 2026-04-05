@@ -13,6 +13,7 @@ import React from 'react'
 import { useSceneStore } from '@ui/stores/scene-store'
 import { useAppStore } from '@ui/stores/app-store'
 import { useScenes } from '@ui/hooks/use-scenes'
+import { useNotes } from '@ui/hooks/use-notes'
 import { GBPreviewColumn } from './dashboard/gb-preview-column'
 import { CenterColumn } from './dashboard/center-column'
 import { QuickAccessColumn } from './dashboard/quick-access-column'
@@ -26,6 +27,7 @@ export function DashboardTab(): React.JSX.Element {
     const previewScene = useSceneStore((s) => s.previewScene)
     const activeCampaignId = useAppStore((s) => s.activeCampaignId)
     const { scenes, loading, error, refetch } = useScenes(activeCampaignId)
+    useNotes(activeCampaignId)
 
     return (
         <div className="dashboard">

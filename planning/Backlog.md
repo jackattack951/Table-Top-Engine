@@ -12,17 +12,6 @@
 Quick-access slider on the dashboard that adjusts multiple atmosphere values at once as it moves (particles intensity, mood, color grade temperature/saturation). Single control for "weather intensity" without opening the AV tab. Designed for live Play mode — fast atmosphere shifts mid-session without tab-switching.
 Requires: Sprint 20 (Plan/Play mode distinction) for mode-aware behavior.
 
-### Item States in Quick Reference
-The Quick Items widget currently shows "Unlink" which is unclear. Replace with clear item states:
-- **Hidden** — item exists in scene but players can't see it
-- **Loot** — item is discoverable/droppable, visible when DM reveals
-- **Acquired** — item has been picked up, assign to a player -> appears on their companion dashboard
-
-Requires: new `status` column on `scene_items` junction table, UI state indicators, player item push via socket.
-
-### Dashboard Notes Strip Empty on Initial Scene Load (Bug)
-When loading a campaign and selecting a scene, the notes strip on the dashboard is empty. Navigating to the Scenes tab and back to Dashboard causes notes to appear. Likely a timing/fetch race — notes data may not be fetched or the store may not be populated before the notes strip renders on first scene load. Investigate `notes-strip.tsx`, `useNotes` hook, and the scene load sequence in `DashboardTab.tsx`.
-
 ### SFX Soundboard — Expand to 9 Triggers
 Currently 6 SFX clips on the soundboard. Add 3 more slots for a total of 9 trigger buttons. New clips TBD — candidates: rain/downpour, horse gallop, arrow volley, glass shatter, chains/lock, crowd gasp, wolf howl, bell toll, explosion.
 
@@ -235,6 +224,10 @@ Plan Mode gets a persistent Record button that captures all DM selections across
 - ~~Combat HP Buttons~~ — flex-wrap
 - ~~Spells Filter Pill~~ — stronger active state
 - ~~Empty State Polish~~ — emoji icons + actionable copy
+
+### Done — Sprint 24a (2026-04-05)
+- ~~Dashboard Notes Strip Empty on Initial Load (Bug)~~ — added `useNotes(activeCampaignId)` to `DashboardTab.tsx`
+- ~~Item States in Quick Reference~~ — `status` column on `scene_items`, Hidden/Loot/Acquired states in `quick-items.tsx` (migration 009)
 
 ### Done — CSS Unification
 - ~~Inline Style Extraction~~ — Reduced to 11 in Sprint 17a (all dynamic/computed). No further extraction needed.

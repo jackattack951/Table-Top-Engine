@@ -103,6 +103,7 @@ function SceneNode({
     draggable,
 }: SceneNodeProps): React.JSX.Element {
     const hasBranches = scene.branches.length > 0
+    const hasBackground = !!(scene.backgroundPath ?? scene.backgroundAssetId)
 
     const handleBranchClick = useCallback(
         (e: React.MouseEvent, targetSceneId: string) => {
@@ -135,6 +136,10 @@ function SceneNode({
             <div className="scene-timeline__node-content">
                 <span className="scene-timeline__node-name">{scene.name}</span>
                 {variant === 'active' && <span className="live-dot scene-timeline__live-dot" />}
+                <span
+                    className={`scene-timeline__ready-dot${hasBackground ? ' scene-timeline__ready-dot--ready' : ''}`}
+                    aria-label={hasBackground ? 'Scene has media' : 'No media assigned'}
+                />
             </div>
 
             {hasBranches && (
