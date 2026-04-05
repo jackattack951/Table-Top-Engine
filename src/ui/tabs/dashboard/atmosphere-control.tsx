@@ -37,14 +37,14 @@ export function AtmosphereControl(): React.JSX.Element {
     const environmentId = useMoodStore((s) => s.environmentId)
     const setValue = useMoodStore((s) => s.setValue)
     const setEnvironmentId = useMoodStore((s) => s.setEnvironmentId)
-    const particles = useAVStore((s) => s.particles)
+    const particlesType = useAVStore((s) => s.particles.type)
     const setParticles = useAVStore((s) => s.setParticles)
 
     const hasBGOutput = useOutputStore((s) => s.outputs.BG !== null)
 
     function handleAtmosphereSlider(v: number): void {
         setValue(v)
-        setParticles(particles.type, v)
+        setParticles(particlesType, v)
     }
 
     const activeZone = getMoodZone(moodValue)
@@ -64,7 +64,6 @@ export function AtmosphereControl(): React.JSX.Element {
 
     return (
         <div className="atmo-control">
-            {/* Audio status bar */}
             <AudioStatusBar
                 hasBGOutput={hasBGOutput}
                 environmentLabel={envLabel}

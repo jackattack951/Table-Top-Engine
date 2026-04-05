@@ -205,6 +205,8 @@ export function SpellsTab(): React.JSX.Element {
         [pinnedSpellIds],
     )
 
+    const isEmpty = query.trim() === ''
+
     function toggleExpand(name: string): void {
         setExpandedName((prev) => (prev === name ? null : name))
     }
@@ -215,12 +217,8 @@ export function SpellsTab(): React.JSX.Element {
     }
 
     function handleQueryBlur(): void {
-        if (query.trim()) pushHistory(query.trim())
-    }
-
-    function handleHistoryChip(q: string): void {
-        setQuery(q)
-        setExpandedName(null)
+        const trimmed = query.trim()
+        if (trimmed) pushHistory(trimmed)
     }
 
     function togglePin(resultKey: string): void {
@@ -263,7 +261,7 @@ export function SpellsTab(): React.JSX.Element {
                 </div>
 
                 {/* Recent searches */}
-                {searchHistory.length > 0 && query.trim() === '' && (
+                {searchHistory.length > 0 && isEmpty && (
                     <div className="srd-history">
                         <span className="srd-history__label">Recent</span>
                         <div className="srd-history__chips">
@@ -271,7 +269,7 @@ export function SpellsTab(): React.JSX.Element {
                                 <button
                                     key={q}
                                     className="srd-history__chip"
-                                    onClick={() => handleHistoryChip(q)}
+                                    onClick={() => handleQueryChange(q)}
                                 >
                                     {q}
                                 </button>
@@ -284,7 +282,7 @@ export function SpellsTab(): React.JSX.Element {
                 )}
 
                 {/* Pinned spells */}
-                {pinnedResults.length > 0 && query.trim() === '' && (
+                {pinnedResults.length > 0 && isEmpty && (
                     <div className="srd-pinned">
                         <div className="srd-pinned__label">Pinned</div>
                         {pinnedResults.map((result) => {
@@ -305,7 +303,7 @@ export function SpellsTab(): React.JSX.Element {
 
                 {/* Results list */}
                 <div className="srd-tab__results">
-                    {query.trim() === '' && pinnedResults.length === 0 && (
+                    {isEmpty && pinnedResults.length === 0 && (
                         <div className="tab-placeholder tab-placeholder--compact">
                             <span className="tab-placeholder__icon">&#128218;</span>
                             <div className="tab-placeholder__title">Spells &amp; Reference</div>
@@ -315,7 +313,7 @@ export function SpellsTab(): React.JSX.Element {
                         </div>
                     )}
 
-                    {query.trim() !== '' && results.length === 0 && (
+                    {!isEmpty && results.length === 0 && (
                         <div className="tab-placeholder tab-placeholder--compact-sm">
                             <div className="tab-placeholder__title">No results</div>
                             <p className="tab-placeholder__desc">

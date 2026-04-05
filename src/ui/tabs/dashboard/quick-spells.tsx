@@ -152,7 +152,8 @@ export function QuickSpells(): React.JSX.Element {
     }
 
     function handleQueryBlur(): void {
-        if (query.trim()) pushHistory(query.trim())
+        const trimmed = query.trim()
+        if (trimmed) pushHistory(trimmed)
     }
 
     function toggleExpand(key: string): void {
@@ -202,7 +203,7 @@ export function QuickSpells(): React.JSX.Element {
                             <button
                                 key={q}
                                 className="quick-spells__chip"
-                                onClick={() => { setQuery(q); setExpandedKey(null) }}
+                                onClick={() => handleQueryChange(q)}
                             >
                                 {q}
                             </button>
