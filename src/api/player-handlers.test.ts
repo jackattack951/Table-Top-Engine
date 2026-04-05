@@ -54,6 +54,7 @@ function makeSessionState(overrides: Partial<SessionState> = {}): SessionState {
         players: {},
         phase: 'lobby',
         rollPrompts: {},
+        characterSelectMode: 'manual-only' as const,
         ...overrides,
     }
 }

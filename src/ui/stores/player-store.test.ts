@@ -216,3 +216,32 @@ describe('PlayerStore — roll prompt tracking (Sprint 21b)', () => {
         expect(usePlayerStore.getState().rollResults).toEqual([])
     })
 })
+
+describe('PlayerStore — character select mode (Sprint 21c)', () => {
+    beforeEach(() => {
+        usePlayerStore.getState().reset()
+    })
+
+    it('defaults to manual-only', () => {
+        expect(usePlayerStore.getState().characterSelectMode).toBe('manual-only')
+    })
+
+    it('setCharacterSelectMode updates the mode', () => {
+        usePlayerStore.getState().setCharacterSelectMode('roster-only')
+        expect(usePlayerStore.getState().characterSelectMode).toBe('roster-only')
+    })
+
+    it('setCharacterSelectMode accepts all valid modes', () => {
+        usePlayerStore.getState().setCharacterSelectMode('roster-and-manual')
+        expect(usePlayerStore.getState().characterSelectMode).toBe('roster-and-manual')
+        usePlayerStore.getState().setCharacterSelectMode('manual-only')
+        expect(usePlayerStore.getState().characterSelectMode).toBe('manual-only')
+    })
+
+    it('reset restores manual-only mode', () => {
+        usePlayerStore.getState().setCharacterSelectMode('roster-only')
+        usePlayerStore.getState().reset()
+        expect(usePlayerStore.getState().characterSelectMode).toBe('manual-only')
+    })
+})
+

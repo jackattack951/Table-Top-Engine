@@ -61,6 +61,20 @@ export interface PlayerMessage {
     read: boolean
 }
 
+/** Controls how players select their character when joining. */
+export type CharacterSelectMode = 'manual-only' | 'roster-and-manual' | 'roster-only'
+
+/** A pre-defined character in the campaign roster (shared type — companion + cockpit). */
+export interface RosterCharacter {
+    id: string
+    characterName: string
+    class: string
+    level: number
+    maxHp: number
+    ac: number
+    abilities: Record<AbilityScore, number>
+}
+
 /** Session state tracked server-side. Separate lifecycle from ServerState. */
 export interface SessionState {
     sessionCode: string
@@ -68,6 +82,8 @@ export interface SessionState {
     phase: 'lobby' | 'ready-check' | 'live' | 'ended'
     /** Active roll prompts, keyed by promptId. */
     rollPrompts: Record<string, RollPrompt & { tokens: string[] }>
+    /** Controls how players select their character when joining. */
+    characterSelectMode: CharacterSelectMode
 }
 
 /** A pending roll request sent from the DM to one or more players. */

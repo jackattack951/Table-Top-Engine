@@ -11,6 +11,7 @@ import React, { useState } from 'react'
 import { usePlayerStore } from '../stores/player-store'
 import { PlayerCard } from './players/player-card'
 import { RollPromptPanel } from './players/roll-prompt-panel'
+import { CharacterRosterPanel } from './players/character-roster-panel'
 import { CopyButton } from '../components/copy-button'
 import { emitBroadcast, emitWhisper } from '../lib/sync'
 
@@ -82,6 +83,9 @@ export function PlayersTab(): React.JSX.Element {
 
             {/* Broadcast */}
             <BroadcastPanel />
+
+            {/* Character Roster */}
+            <CharacterRosterPanel />
 
             {/* Roll Prompt */}
             <RollPromptPanel />

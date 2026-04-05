@@ -2,6 +2,7 @@
  * Player lobby and DM action socket emitters.
  */
 import { EVENTS } from '@shared/socket-events'
+import type { CharacterSelectMode } from '@shared/player-types'
 import { getSocket, safeEmit } from './connection'
 
 // ── Player Lobby helpers (Sprint 11d) ─────────────────────────────────────────
@@ -95,4 +96,11 @@ export function emitRollPrompt(tokens: string[], die: string, label: string, cou
 /** Cancel an active roll prompt by ID. */
 export function emitCancelRollPrompt(promptId: string): void {
     getSocket()?.emit(EVENTS.ROLL_PROMPT_CANCEL, { promptId })
+}
+
+// ── Sprint 21c: Character select mode ─────────────────────────────────────────
+
+/** Set the character select mode for the current session. */
+export function emitSetCharMode(mode: CharacterSelectMode): void {
+    getSocket()?.emit(EVENTS.SESSION_SET_CHAR_MODE, { mode })
 }

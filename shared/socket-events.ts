@@ -128,6 +128,10 @@ export const EVENTS = {
     PLAYER_ROLL_PROMPT_CANCEL: 'player:rollPromptCancel', // Server → Player: { promptId }
     ROLL_PROMPT_ACTIVE: 'roll:promptActive',       // Server → Cockpit: { promptId } — echoes active prompt ID after send
 
+    // Sprint 21c: Character select mode
+    SESSION_SET_CHAR_MODE: 'session:setCharMode',  // Cockpit → Server: { mode: CharacterSelectMode }
+    SESSION_CHAR_MODE: 'session:charMode',          // Server → Cockpit: { mode: CharacterSelectMode }
+
     // Sprint 21a: Player ↔ DM messaging + raise hand
     PLAYER_SEND_MESSAGE: 'player:sendMessage',   // Player → Server: { message: string }
     DM_PLAYER_MESSAGE: 'dm:playerMessage',        // Server → Cockpit: { token, playerName, characterName, id, message, timestamp }

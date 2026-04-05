@@ -81,6 +81,7 @@ describe('Sprint 21b: DM roll prompt system', () => {
             players: { [TOKEN]: player },
             phase: 'live',
             rollPrompts: {},
+            characterSelectMode: 'manual-only',
         }
         tokenToSocket = new Map([[TOKEN, PLAYER_SOCKET_ID]])
         socketToToken = new Map([[PLAYER_SOCKET_ID, TOKEN]])

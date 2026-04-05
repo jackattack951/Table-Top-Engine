@@ -35,4 +35,5 @@ export {
     emitWhisper, emitBroadcast, emitQROverlay,
     emitReplyToPlayer,
     emitRollPrompt, emitCancelRollPrompt,
+    emitSetCharMode,
 } from './player-sync'

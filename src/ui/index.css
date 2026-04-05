@@ -10166,3 +10166,135 @@ body {
     font-size: var(--text-xs);
     color: var(--text-muted);
 }
+
+/* ─── Character Roster Panel (Sprint 21c) ────────────────────────────────────── */
+
+.char-roster-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+}
+
+.char-roster-panel__title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.char-roster-panel__modes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.char-roster-panel__mode-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+    color: var(--color-text);
+}
+
+.char-roster-panel__mode-btn:hover {
+    border-color: var(--color-accent);
+    background: var(--bg-tertiary);
+}
+
+.char-roster-panel__mode-btn--active {
+    border-color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.char-roster-panel__mode-label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
+
+.char-roster-panel__mode-desc {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.char-roster-panel__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.char-roster-panel__empty {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.char-roster-panel__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+.char-roster-panel__row-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.char-roster-panel__row-name {
+    font-size: var(--text-sm);
+    font-weight: 600;
+}
+
+.char-roster-panel__row-meta {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.char-roster-panel__delete-btn {
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2);
+    color: var(--color-danger);
+}
+
+.char-roster-panel__add-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.char-roster-panel__add-row {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.char-roster-panel__add-class {
+    flex: 1;
+}
+
+.char-roster-panel__add-num {
+    width: 60px;
+}
+
+.char-roster-panel__add-actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.char-roster-panel__add-btn {
+    align-self: flex-start;
+}
