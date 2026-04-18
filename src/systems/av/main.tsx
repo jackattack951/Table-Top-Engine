@@ -65,6 +65,10 @@ async function boot(): Promise<void> {
     await layerStack.init(canvas)
     const app = layerStack.pixiApp!
 
+    // Must init before subsystems that may throw — idle screen must always show.
+    const idleScreen = new IdleScreen(app)
+    void idleScreen.show(null, null)
+
     // ── BG systems ──────────────────────────────────────────────────────────
 
     let particleSystem: ParticleSystem | null = null
@@ -80,7 +84,12 @@ async function boot(): Promise<void> {
 
         // Particle system
         particleSystem = new ParticleSystem(layerStack.layers.particle, app)
-        await particleSystem.loadAtlas('/assets/particles/atlas.png')
+        try {
+            await particleSystem.loadAtlas('/assets/particles/atlas.png')
+        } catch (err) {
+            console.warn('[av-display] particle atlas load failed — particles disabled:', err)
+            particleSystem = null
+        }
 
         // FX loop player — VP9+alpha WebM loops
         fxPlayer = new FXLoopPlayer(layerStack.layers.fx)
@@ -125,13 +134,6 @@ async function boot(): Promise<void> {
         statusText.text = msg
         setTimeout(() => { statusText.text = '' }, 3000)
     }
-
-    // ── Idle screen (Sprint 22c) — below all LayerStack layers (Pitfall #19) ──
-    // addChildAt(container, 0) inside IdleScreen constructor; show immediately
-    // so the AV output is never a black frame on startup.
-
-    const idleScreen = new IdleScreen(app)
-    void idleScreen.show(null, null)
 
     // ── QR Overlay (Phase 6 — both roles) ──────────────────────────────────
 
